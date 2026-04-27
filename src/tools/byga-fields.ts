@@ -43,6 +43,17 @@ function formatSlot(slot: Slot): FormattedSlot {
   };
 }
 
+const bygaFieldsSchema = {
+  schedule_id: z.string().describe('Byga game schedule ID'),
+  team_id: z.string().describe('Byga team ID'),
+  start_date: z.string().describe('Start date in YYYY-MM-DD format'),
+  end_date: z.string().describe('End date in YYYY-MM-DD format'),
+  available_only: z
+    .boolean()
+    .optional()
+    .describe('If true, return only available slots (default: false)'),
+};
+
 export function registerBygaFieldsTool(
   server: McpServer,
   log: Logger,
@@ -51,16 +62,7 @@ export function registerBygaFieldsTool(
     'get_field_availability',
     'Fetch field slot availability from Byga for a date range. Returns all slots (available and ' +
       'booked) so scheduling conflicts can be detected.',
-    {
-      schedule_id: z.string().describe('Byga game schedule ID'),
-      team_id: z.string().describe('Byga team ID'),
-      start_date: z.string().describe('Start date in YYYY-MM-DD format'),
-      end_date: z.string().describe('End date in YYYY-MM-DD format'),
-      available_only: z
-        .boolean()
-        .optional()
-        .describe('If true, return only available slots (default: false)'),
-    },
+    bygaFieldsSchema,
     async ({ schedule_id, team_id, start_date, end_date, available_only = false }) => {
       const t0 = Date.now();
       log.info({ tool: 'get_field_availability', schedule_id, team_id, start_date, end_date, available_only }, 'tool call');

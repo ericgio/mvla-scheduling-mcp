@@ -8,6 +8,22 @@ import type { ScheduleResult } from '../lib/types.js';
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
+const gotsportSchema = {
+  event_id: z
+    .union([z.string(), z.number()])
+    .describe('GotSport event (season) ID — from the URL: /org_event/events/<ID>/'),
+  team_id: z
+    .union([z.string(), z.number()])
+    .describe('GotSport team registration ID — from the URL query string: ?team=<ID>'),
+  force_refresh: z
+    .boolean()
+    .optional()
+    .describe(
+      'Bypass the 5-minute cache and fetch fresh data from GotSport. ' +
+        'Use this when you need up-to-date results or schedule changes.',
+    ),
+};
+
 export function registerGotsportTool(server: McpServer, log: Logger): void {
   server.tool(
     'get_gotsport_schedule',
@@ -16,21 +32,7 @@ export function registerGotsportTool(server: McpServer, log: Logger): void {
       'The response includes a fetchedAt timestamp — use force_refresh=true when you need ' +
       'current data (e.g. checking a result from a game that just finished, or verifying a ' +
       'recent schedule change).',
-    {
-      event_id: z
-        .union([z.string(), z.number()])
-        .describe('GotSport event (season) ID — from the URL: /org_event/events/<ID>/'),
-      team_id: z
-        .union([z.string(), z.number()])
-        .describe('GotSport team registration ID — from the URL query string: ?team=<ID>'),
-      force_refresh: z
-        .boolean()
-        .optional()
-        .describe(
-          'Bypass the 5-minute cache and fetch fresh data from GotSport. ' +
-            'Use this when you need up-to-date results or schedule changes.',
-        ),
-    },
+    gotsportSchema,
     async ({ event_id, team_id, force_refresh }) => {
       const t0 = Date.now();
       const cacheKey = `gotsport:${event_id}:${team_id}`;

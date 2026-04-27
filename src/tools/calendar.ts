@@ -11,29 +11,31 @@ function isVEvent(e: unknown): e is VEvent {
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
+const calendarSchema = {
+  url: z.string().describe('Calendar subscription URL (.ics feed)'),
+  start_date: z
+    .string()
+    .optional()
+    .describe('Only include events on or after this date (YYYY-MM-DD). Defaults to today.'),
+  end_date: z
+    .string()
+    .optional()
+    .describe(
+      'Only include events on or before this date (YYYY-MM-DD). Defaults to 90 days from today.',
+    ),
+  force_refresh: z
+    .boolean()
+    .optional()
+    .describe('Bypass the 5-minute cache and fetch the latest calendar data.'),
+};
+
 export function registerCalendarTool(server: McpServer, log: Logger): void {
   server.tool(
     'get_calendar_schedule',
     'Fetches and parses any calendar subscription URL — Google Calendar, Byga, Apple Calendar, ' +
       'or any standard .ics feed. Use for coach calendars, team schedules, away team conflicts, ' +
       'or any external calendar. Accepts optional date range to filter results.',
-    {
-      url: z.string().describe('Calendar subscription URL (.ics feed)'),
-      start_date: z
-        .string()
-        .optional()
-        .describe('Only include events on or after this date (YYYY-MM-DD). Defaults to today.'),
-      end_date: z
-        .string()
-        .optional()
-        .describe(
-          'Only include events on or before this date (YYYY-MM-DD). Defaults to 90 days from today.',
-        ),
-      force_refresh: z
-        .boolean()
-        .optional()
-        .describe('Bypass the 5-minute cache and fetch the latest calendar data.'),
-    },
+    calendarSchema,
     async ({ url, start_date, end_date, force_refresh }) => {
       const t0 = Date.now();
       const cacheKey = `calendar:${url}`;

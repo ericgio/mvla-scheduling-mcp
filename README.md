@@ -1,87 +1,48 @@
-# mvla-scheduling-mcp
+<div align="center">
+  <img width="300" height="150" alt="mvla-claude" src="./mvla-claude.png" />
+</div>
 
-A unified MCP server for soccer scheduling assistants. Gives Claude real-time access to game schedules, team calendars, and field availability from a single server.
+# MVLA Scheduling Assistant
 
-Runs locally over stdio (for Claude Desktop) or as an HTTP server (for shared/hosted use), controlled by an environment variable.
+A Claude-powered scheduling tool for MVLA team managers. It surfaces field availability, cross-references coach and personal calendars, and suggests optimal game slots — all from a plain-English chat interface.
 
-## Tools
+## How does it work?
 
-| Tool | Auth | Description |
-|------|------|-------------|
-| `get_gotsport_schedule` | None | Fetches a team's schedule from GotSport via the public XLSX export endpoint |
-| `get_calendar_schedule` | None | Fetches any calendar subscription URL (Google Calendar, Byga, .ics feeds) |
-| `get_field_availability` | BYGA_COOKIE | Fetches field slot availability from Byga. Local (stdio) only — not available in HTTP mode |
+The tool is a [Claude.ai Project](https://claude.ai) — a persistent chat context that gives Claude access to your team's season info and a set of tools for fetching live data. When you ask it to schedule a game, it:
 
-`get_gotsport_schedule` and `get_calendar_schedule` both accept a `force_refresh` flag to bypass the 5-minute cache. Use it when you need current data (e.g. a game just finished, or a schedule was recently updated). The `fetchedAt` timestamp in every response tells you how fresh the data is.
+1. Fetches available field slots from Byga
+2. Fetches your team's schedule and your coach's schedule
+3. Cross-references your personal calendar for conflicts
+4. Suggests 2–3 ranked options with reasoning
+
+No code to run. No spreadsheets. Just a conversation.
+
+## What do I need?
+
+- A [Claude.ai](https://claude.ai) account (free tier works; Pro recommended for longer sessions)
+- [Google Chrome](https://www.google.com/chrome/) with the [Claude in Chrome](https://chromewebstore.google.com/detail/claude-in-chrome/) extension installed
 
 ## Setup
 
-### 1. Install dependencies
+To get started, go to https://mvla.ericgio.com/ and follow the instructions.
 
-```bash
-cd mvla-scheduling-mcp
-npm install
-```
+## Usage
 
-### 2. Configure environment
+Start a new chat inside your project and ask naturally:
 
-```bash
-cp .env.example .env
-```
+> "Can you check field availability for the weekend of June 14–15?"
 
-Fill in `.env`. The only required values for `get_field_availability` are the Byga ones — the other two tools need no credentials.
+> "Schedule a home game against FC Ballistic — they can't do Saturdays."
 
-**Getting your Byga session cookie (`BYGA_COOKIE`):**
-1. Log into Byga in Chrome
-2. Open DevTools (Cmd+Option+I) → Network tab
-3. Navigate to your game schedule page in Byga
-4. Click any request to your club's Byga domain
-5. Headers → Request Headers → copy the full value of the `Cookie:` header
-6. Paste it as `BYGA_COOKIE=...` in your `.env`
+> "What does our schedule look like for the rest of the season?"
 
-Session cookies expire every few days to weeks. If you see HTTP 401/403 errors, just refresh the cookie.
+Claude will fetch live data, flag any conflicts, and walk you through the options. On confirmation, it will draft a message to the away team manager ready to paste into GotSport.
 
-### 3. Build
+## Current limitations
 
-```bash
-npm run build
-```
+- **Field availability requires Claude in Chrome** — Claude opens a live browser tab to read Byga's field calendar. This is a temporary workaround until official Byga API access is granted.
+- **One season at a time** — the season context doc is specific to a single team and season. Start a new doc each season.
 
-Output goes to `dist/`. Rebuild after any source changes.
+## Feedback and contributions
 
-### 4. Connect to Claude Desktop
-
-Open `~/Library/Application Support/Claude/claude_desktop_config.json` and add:
-
-```json
-{
-  "mcpServers": {
-    "mvla-scheduling": {
-      "command": "node",
-      "args": ["--env-file=.env", "/absolute/path/to/mvla-scheduling-mcp/dist/index.js"]
-    }
-  }
-}
-```
-
-Replace the path with the actual absolute path on your machine. Restart Claude Desktop.
-
-### 5. HTTP mode (optional, for shared/hosted use)
-
-```bash
-MCP_TRANSPORT=http PORT=3001 node dist/index.js
-```
-
-In HTTP mode, `get_field_availability` is disabled (it requires a local session cookie). The other two tools work normally.
-
-## Development
-
-```bash
-npm run dev    # runs with tsx, no build step needed
-```
-
-## Updating each season
-
-1. Update `BYGA_SCHEDULE_ID` in `.env` with the new season's ID
-2. Refresh `BYGA_COOKIE` if it has expired
-3. Update your season context document with the new GotSport event/team IDs
+This is a v0 built for a specific use case. If you're an MVLA manager using this and run into issues or have suggestions, please open a GitHub issue or reach out to me directly.

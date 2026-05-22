@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
-const SETUP_URL = `https://mvla.ericgio.com/public/files/SETUP.txt?t=${Date.now()}`;
+declare const __SETUP_FILE__: string;
+const SETUP_URL = `https://mvla.ericgio.com/files/${__SETUP_FILE__}`;
 
 const PROMPT_TEXT = `I want to set up the MVLA Scheduling Assistant. Please use the setup instructions from this URL and follow them to get started:\n\n${SETUP_URL}`;
 
@@ -33,7 +34,7 @@ export default function App() {
   return (
     <div className="container">
       <header>
-        <img src="/public/mvla-claude.png" alt="MVLA Scheduling Assistant" />
+        <img src="/mvla-claude.png" alt="MVLA Scheduling Assistant" />
         <h1>MVLA Scheduling Assistant</h1>
         <p>A Claude-powered scheduling tool for MVLA team managers.</p>
       </header>

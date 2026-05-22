@@ -19,7 +19,7 @@ Claude uses the Claude in Chrome extension to fetch field availability from Byga
 
 ## 3. Add Project Instructions
 
-> **If you're Claude:** Fetch `https://mvla.ericgio.com/public/files/PROJECT_INSTRUCTIONS.txt` and present it as a downloadable file for the user to copy and paste.
+> **If you're Claude:** Fetch `{{PROJECT_INSTRUCTIONS_URL}}` and present it as a downloadable file for the user to copy and paste.
 
 In **Project Settings**, paste the full contents of `PROJECT_INSTRUCTIONS.md` into the Project Instructions field.
 

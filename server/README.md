@@ -1,8 +1,6 @@
 # mvla-scheduling-mcp
 
-A unified MCP server for soccer scheduling assistants. Gives Claude real-time access to game schedules, team calendars, and field availability from a single server.
-
-Runs locally over stdio (for Claude Desktop) or as an HTTP server (for shared/hosted use), controlled by an environment variable.
+MCP server that gives Claude real-time access to soccer game schedules and field availability. Runs as an HTTP server; the `/mcp` endpoint is registered as a custom connector in Claude.ai.
 
 ## Tools
 
@@ -10,78 +8,37 @@ Runs locally over stdio (for Claude Desktop) or as an HTTP server (for shared/ho
 |------|------|-------------|
 | `get_gotsport_schedule` | None | Fetches a team's schedule from GotSport via the public XLSX export endpoint |
 | `get_calendar_schedule` | None | Fetches any calendar subscription URL (Google Calendar, Byga, .ics feeds) |
-| `get_field_availability` | BYGA_COOKIE | Fetches field slot availability from Byga. Local (stdio) only — not available in HTTP mode |
+| `get_field_availability` | — | Disabled in HTTP mode (requires a local Byga session cookie) |
 
-`get_gotsport_schedule` and `get_calendar_schedule` both accept a `force_refresh` flag to bypass the 5-minute cache. Use it when you need current data (e.g. a game just finished, or a schedule was recently updated). The `fetchedAt` timestamp in every response tells you how fresh the data is.
+Both active tools accept `force_refresh` to bypass the 5-minute cache. The `fetchedAt` timestamp in every response lets Claude reason about data freshness.
 
-## Setup
+## Why two schedule sources?
 
-### 1. Install dependencies
+**Byga** is the official league platform but its schedule data lags during active scheduling periods. **GotSport** is the game-management system where schedules are entered first — its export endpoint is real-time. When they disagree, GotSport is the source of truth.
 
-```bash
-cd mvla-scheduling-mcp
-npm install
-```
+## Environment
 
-### 2. Configure environment
+Copy `.env.example` → `.env` and fill in values:
 
-```bash
-cp .env.example .env
-```
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `MCP_TRANSPORT` | No | `http` (default on server) or `stdio` |
+| `PORT` | No | HTTP port (default: `3001`) |
+| `LOG_LEVEL` | No | `debug` \| `info` \| `warn` \| `error` (default: `info`) |
+| `BYGA_BASE_URL` | No | Base URL of the Byga instance — only needed if `get_field_availability` is ever enabled |
+| `ENABLE_FIELD_AVAILABILITY` | No | Set to `true` to enable the Byga field tool (stdio only) |
 
-Fill in `.env`. The only required values for `get_field_availability` are the Byga ones — the other two tools need no credentials.
+## Build and start
 
-**Getting your Byga session cookie (`BYGA_COOKIE`):**
-1. Log into Byga in Chrome
-2. Open DevTools (Cmd+Option+I) → Network tab
-3. Navigate to your game schedule page in Byga
-4. Click any request to your club's Byga domain
-5. Headers → Request Headers → copy the full value of the `Cookie:` header
-6. Paste it as `BYGA_COOKIE=...` in your `.env`
-
-Session cookies expire every few days to weeks. If you see HTTP 401/403 errors, just refresh the cookie.
-
-### 3. Build
+From the repo root:
 
 ```bash
-npm run build
+yarn build:server   # compiles TypeScript → server/dist/
+yarn start          # runs server/dist/index.js
 ```
-
-Output goes to `dist/`. Rebuild after any source changes.
-
-### 4. Connect to Claude Desktop
-
-Open `~/Library/Application Support/Claude/claude_desktop_config.json` and add:
-
-```json
-{
-  "mcpServers": {
-    "mvla-scheduling": {
-      "command": "node",
-      "args": ["--env-file=.env", "/absolute/path/to/mvla-scheduling-mcp/dist/index.js"]
-    }
-  }
-}
-```
-
-Replace the path with the actual absolute path on your machine. Restart Claude Desktop.
-
-### 5. HTTP mode (optional, for shared/hosted use)
-
-```bash
-MCP_TRANSPORT=http PORT=3001 node dist/index.js
-```
-
-In HTTP mode, `get_field_availability` is disabled (it requires a local session cookie). The other two tools work normally.
 
 ## Development
 
 ```bash
-npm run dev    # runs with tsx, no build step needed
+yarn dev:server     # runs with tsx — no build step needed
 ```
-
-## Updating each season
-
-1. Update `BYGA_SCHEDULE_ID` in `.env` with the new season's ID
-2. Refresh `BYGA_COOKIE` if it has expired
-3. Update your season context document with the new GotSport event/team IDs

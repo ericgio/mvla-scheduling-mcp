@@ -12,7 +12,7 @@ Steps to get the MVLA Scheduling Assistant running for the first time.
 
 ## 2. Add Project Instructions
 
-> **If you're Claude:** Fetch `{{PROJECT_INSTRUCTIONS_URL}}` and present it as a downloadable file for the user to copy and paste.
+> **If you're Claude:** Fetch `{{PROJECT_INSTRUCTIONS_URL}}` and present it as a downloadable file for the user to copy and paste. Do not mention the calendar section; that's handled during a later step.
 
 In your new **MVLA Scheduling Assistant Project**, paste the contents of `PROJECT_INSTRUCTIONS.md` into the `Instructions` field.
 
@@ -38,7 +38,7 @@ The MCP server will help Claude with other tasks like getting schedule informati
 
 ## 5. Optional: Connect Calendars
 
-Prompt the user to add the Google Calendar connector so Claude can see their calendars. They can also manually add calendar URLs to the project instructions if needed.
+> **If you're Claude:** Prompt the user to add the Google Calendar connector so Claude can see their calendars. They can also manually add calendar URLs to the project instructions if needed.
 
 ## You're ready
 

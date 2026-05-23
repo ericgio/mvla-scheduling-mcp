@@ -4,14 +4,24 @@
 
 # MVLA Scheduling Assistant
 
-A Claude-powered scheduling tool for MVLA team managers. It surfaces field availability, cross-references coach and personal calendars, and suggests optimal game slots — all from a plain-English chat interface.
+A Claude-powered scheduling tool for MVLA team managers.
+
+## Why Use This Tool?
+
+If you've ever had to schedule games for an MVLA team, you know it can be a logistical nightmare: checking field availability on Byga, messaging teams on GotSport, coordinating with your coach's other teams, and avoiding conflicts with your personal calendar. And just when the schedule is all set... you get a request to reschedule a game.
+
+This tool aims to simplify that process by giving you a conversational assistant that can access all the data you need and help you find the best options in seconds.
+
+## Get Started
+
+To get started, go to https://mvla.ericgio.com/ and follow the instructions.
 
 ## How does it work?
 
-The tool is a [Claude.ai Project](https://claude.ai) — a persistent chat context that gives Claude access to your team's season info and a set of tools for fetching live data. When you ask it to schedule a game, it:
+The tool is a [Claude.ai Project](https://claude.ai) — a persistent chat context that gives Claude access to your team's season info and a set of tools for fetching live data. When you ask it to schedule a game, it can:
 
-1. Fetches available field slots from Byga
-2. Fetches your team's schedule and your coach's schedule
+1. Fetch available field slots from Byga
+2. Fetch your team's schedule and your coach's schedule
 3. Cross-references your personal calendar for conflicts
 4. Suggests 2–3 ranked options with reasoning
 
@@ -19,12 +29,9 @@ No code to run. No spreadsheets. Just a conversation.
 
 ## What do I need?
 
-- A [Claude.ai](https://claude.ai) account (free tier works; Pro recommended for longer sessions)
-- [Google Chrome](https://www.google.com/chrome/) with the [Claude in Chrome](https://chromewebstore.google.com/detail/claude-in-chrome/) extension installed
-
-## Setup
-
-To get started, go to https://mvla.ericgio.com/ and follow the instructions.
+- A [paid Claude](https://claude.com/pricing) account (free tier will not work)
+- [Claude Desktop](https://claude.com/download) installed
+- [Google Chrome](https://www.google.com/chrome/) with the [Claude in Chrome](https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn) extension installed
 
 ## Usage
 

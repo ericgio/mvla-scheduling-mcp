@@ -94,11 +94,30 @@ export default function App() {
         </p>
       </section>
       <section>
+        <h2>Before You Begin</h2>
+        <p>You'll need the following to use the MVLA Scheduling Assistant:</p>
+        <ul>
+          <li>
+            A <Link href="https://claude.com/pricing">paid Claude account</Link>{' '}
+            (free tier will not work)
+          </li>
+          <li>
+            <Link href="https://claude.com/download">Claude Desktop</Link>{' '}
+            (Claude.ai in a browser will not work)
+          </li>
+          <li>
+            <Link href="https://www.google.com/chrome/">
+              Google Chrome
+            </Link>{' '}
+          </li>
+        </ul>
+      </section>
+      <section>
         <h2>Get Started</h2>
         <p>
-          To get started, paste the following prompt into a new Claude
-          conversation and Claude will walk you through the process step by
-          step:
+          Paste the following prompt into a new conversation in{' '}
+          <strong>Claude Desktop</strong> and Claude will walk you through the
+          process step by step:
         </p>
         <div className="setup-box">
           <button
@@ -133,27 +152,6 @@ export default function App() {
         <p className="tagline">
           No spreadsheets. No tab-juggling. Just a conversation.
         </p>
-      </section>
-      <section>
-        <h2>What will I need?</h2>
-        <ul>
-          <li>
-            A <Link href="https://claude.com/pricing">paid Claude</Link> account
-            (free tier will not work)
-          </li>
-          <li>
-            <Link href="https://claude.com/download">Claude Desktop</Link>{' '}
-            installed
-          </li>
-          <li>
-            <Link href="https://www.google.com/chrome/">Google Chrome</Link>{' '}
-            with the{' '}
-            <Link href="https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn">
-              Claude in Chrome
-            </Link>{' '}
-            extension installed
-          </li>
-        </ul>
       </section>
       <section>
         <h2>Usage</h2>

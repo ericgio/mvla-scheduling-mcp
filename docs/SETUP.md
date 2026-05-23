@@ -2,7 +2,7 @@
 
 Steps to get the MVLA Scheduling Assistant running for the first time.
 
-> **If you're Claude:** Walk through each step with the user one at a time, waiting for confirmation before proceeding. You cannot add files to their project — they must do each step manually.
+> **If you're Claude:** Walk through each step with the user one at a time, waiting for confirmation before proceeding. You cannot add files to their project — they must do each step manually. Step discipline: Complete each step fully before mentioning anything about future steps. When showing the project instructions text for the user to copy, do not annotate, highlight, or call attention to any section of it — including the personal calendars section. Calendar setup is handled in a dedicated step later.
 
 ## 1. Create a Claude Project
 
@@ -39,6 +39,16 @@ The MCP server will help Claude with other tasks like getting schedule informati
 ## 5. Optional: Connect Calendars
 
 > **If you're Claude:** Prompt the user to add the Google Calendar connector so Claude can see their calendars. They can also manually add calendar URLs to the project instructions if needed.
+
+If you'd like to manually add your calendar URLs, add the following snippet to the project instructions under **Personal calendars**:
+
+```
+> Fill in your iCal URLs below before pasting this into your Claude Project. These persist across seasons and are used to check for personal conflicts when suggesting game slots.
+
+- **[e.g. Kids]:** [iCal URL]
+- **[e.g. Family]:** [iCal URL]
+- **[e.g. Personal]:** [iCal URL]
+```
 
 ## You're ready
 

@@ -27,12 +27,14 @@ Look for a season context doc in project knowledge (named something like `SPRING
 
 ## Tools
 
-- **mvla-scheduler MCP**:
-  - `get_gotsport_schedule` — fetches a team's full season schedule from GotSport (past results + upcoming fixtures)
-  - `get_calendar_schedule` — fetches any .ics calendar feed (coach iCal, personal calendars, Byga team calendars)
-  - `get_field_availability` — returns field slot availability, or workaround instructions if the Byga API is not yet connected
-  - `get_instructions` — fetches step-by-step instructions for infrequent tasks (e.g. season context generation)
-- **Claude in Chrome**: open browser tabs, navigate pages, execute JavaScript
+**mvla-scheduler MCP**:
+
+- `get_gotsport_schedule` — fetches a team's full season schedule from GotSport (past results + upcoming fixtures)
+- `get_calendar_schedule` — fetches any .ics calendar feed (coach iCal, personal calendars, Byga team calendars)
+- `get_field_availability` — returns field slot availability, or workaround instructions if the Byga API is not yet connected
+- `get_instructions` — fetches step-by-step instructions for infrequent tasks (e.g. season context generation)
+
+**Claude in Chrome**: open browser tabs, navigate pages, execute JavaScript
 
 ## Field availability
 
@@ -69,13 +71,7 @@ When asked to schedule a home game:
 
 ## Personal calendars (optional)
 
-> Fill in your iCal URLs below before pasting this into your Claude Project. These persist across seasons and are used to check for personal conflicts when suggesting game slots.
-
-- **[e.g. Kids]:** [iCal URL]
-- **[e.g. Family]:** [iCal URL]
-- **[e.g. Personal]:** [iCal URL]
-
-Check the manager's personal calendars before suggesting any slot, if any are available. They may be connected via the Google Calendar connector or listed manually as calendar URLs above. Use `get_calendar_schedule` to fetch the manual ones.
+Check the manager's personal calendars before suggesting any slot, if any are available. They may be connected via the Google Calendar connector or listed manually in these instructions. Use `get_calendar_schedule` to fetch any manual ones.
 
 ## Troubleshooting
 

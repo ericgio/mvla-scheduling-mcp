@@ -4,7 +4,11 @@ Follow these steps to generate a season context doc for a team.
 
 ## Extraction steps
 
-1. Ask the user for their Byga team URL (e.g. `https://mvlasc.byga.net/teams/{team_id}`). Navigate to it and extract:
+1. Navigate to `https://mvlasc.byga.net/`. If the user is not logged in, prommpt them to do so. Logging in should automatically redirect to `https://mvlasc.byga.net/dashboard`.
+
+2. On the dashboard page there should be a section with the season name listing all the teams for that season. If there is more than one, prompt the user to specify which one they want to generate context for.
+
+3. Navigate to that team and extract:
    - Team name, birth year, and format (7v7 / 9v9 / 11v11)
    - Byga team ID (from the URL)
    - League and division name
@@ -12,7 +16,7 @@ Follow these steps to generate a season context doc for a team.
    - Coach name and consolidated iCal URL: navigate to the coach's profile by reading the href on the coach's name link on the team page (pattern: `/users/{user_id}`) and navigating to `https://mvlasc.byga.net{href}`. Extract the iCal URL via JavaScript (`document.querySelectorAll('a[href*=".ics"]')`) rather than using the "Copy Subscription Link" button — clipboard content is not reliably readable. The consolidated iCal covers all their teams.
    - All other teams the coach coaches: for each competitive team, get name, Byga team ID, and league; note any in-house or development programs separately (Byga only, no GotSport). Identify in-house programs by checking whether the team appears in the coach's profile team list without a league name, or has no Competitions tab content.
 
-2. For each team (your team + each of the coach's competitive teams), look up GotSport IDs as follows:
+4. For each team (your team + each of the coach's competitive teams), look up GotSport IDs as follows:
    a. Navigate to the team's Byga page (`https://mvlasc.byga.net/teams/{team_id}`)
    b. Use find to locate the Competitions dropdown in the tab bar and click it
    c. In the dropdown, click the competition that corresponds to the current season's league (e.g. "2025-26 NorCal Premier Spring League U8-U19"). This takes you to the team calendar page for that competition.
@@ -25,7 +29,7 @@ Follow these steps to generate a season context doc for a team.
    - The Source link may land on a different division view than your team's — don't try to navigate to the right division; just search for the team name directly on whatever page loads. When searching, use a distinctive single word from the team name (e.g. "Bayern", "Dortmund") rather than the full name — GotSport prefixes team names with the club name ("Mountain View Los Altos Soccer Club MVLA…"), so partial matching is more reliable
    - In-house/development programs have no GotSport presence — skip them
 
-3. Ask the user for tournament blackout dates and any other info not visible on the calendar (e.g. a deliberate withdrawal from a tournament).
+5. Ask the user for tournament blackout dates and any other info not visible on the calendar (e.g. a deliberate withdrawal from a tournament).
 
 After completing the GotSport lookup, close any GotSport tabs that were opened during extraction to avoid tab confusion in subsequent steps. Always confirm the correct tab is active before reading data by checking `window.location.href`.
 
@@ -117,7 +121,7 @@ _Generated: {date}. Source: Byga, GotSport, coach iCal._
 - _{add entries here, or leave blank}_
 ```
 
-Tell the user to add the generated doc to Project Knowledge, named `{SEASON}_SEASON_CONTEXT.md` (e.g. `SPRING_2026_SEASON_CONTEXT.md`).
+Tell the user to add the generated doc to the project files, being sure to include the name of the season (e.g. "Spring 2026" if pasting text or `SPRING_2026.md` if uploading a file).
 
 ## New season
 

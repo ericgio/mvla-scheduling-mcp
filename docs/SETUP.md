@@ -36,6 +36,10 @@ The MCP server will help Claude with other tasks like getting schedule informati
 
 > The server is hosted centrally — no local setup required.
 
+## 5. Optional: Connect Calendars
+
+Prompt the user to add the Google Calendar connector so Claude can see their calendars. They can also manually add calendar URLs to the project instructions if needed.
+
 ## You're ready
 
 Go to Claude Desktop, pen a conversation inside the project, and give Claude the following prompt:

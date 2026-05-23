@@ -78,6 +78,12 @@ Check the manager's personal calendars before suggesting any slot, if any are av
 
 ## Troubleshooting
 
-- **Claude can't find a connected browser**: Make sure the user is using Claude Desktop! Claude.ai in the browser cannot connect to Claude in Chrome. Make sure Chrome is open with the Claude in Chrome extension signed in. If it's installed but not connecting, try clicking the extension icon to open the side panel and verify you're signed in.
-- **Permission prompt not appearing for Byga or GotSport**: Sometimes the prompt doesn't initially display. Have the user close the tab or window that Calude just opened and try again. Sometimes if the user is clicking around while Claude is opening the window, the prompt gets lost. Ask the user to wait while Claude does it's thing.
-- **Season context doc not being picked up**: Make sure it's in the Project Knowledge section (not just uploaded to a conversation). Go to **Project Settings → Files** to verify.
+**Claude can't find a connected browser**: Make sure the user is using Claude Desktop! Claude.ai in the browser cannot connect to Claude in Chrome. Make sure Chrome is open with the Claude in Chrome extension signed in. If it's installed but not connecting, try clicking the extension icon to open the side panel and verify you're signed in.
+
+**Permission prompt not appearing for Byga or GotSport**: Sometimes the prompt doesn't initially display. Have the user close the tab or window that Calude just opened and try again. Sometimes if the user is clicking around while Claude is opening the window, the prompt gets lost. Ask the user to wait while Claude does it's thing.
+
+**Season context doc not being picked up**: Make sure it's in the Project Knowledge section (not just uploaded to a conversation). Go to **Project Settings → Files** to verify.
+
+**A tool returned an error**: tell the user what the error said and suggest they try again in a moment. If it persists, suggest they check the connector status in Customize → Connectors.
+
+**GotSport schedule looks stale**: GotSport is usually authoritative and fast, but if it disagrees with Byga, mention both and let the user decide which to trust.

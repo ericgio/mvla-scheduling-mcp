@@ -75,6 +75,15 @@ confirmation and move on.
 
 ## Step 3: Install Claude in Chrome
 
+Before prompting the user to install anything, check whether the
+extension is already connected by calling `list_connected_browsers`. If
+a browser is connected, tell the user something like "Looks like you
+already have Claude in Chrome installed and connected — we can skip
+this step" and move directly to step 4. Don't make them go install
+something they already have.
+
+If no browser is connected, continue with the normal flow:
+
 Briefly tell the user this is a browser extension Claude uses to pull
 live data from Byga and GotSport — field availability, schedules, and
 team info.
@@ -103,6 +112,16 @@ Tell the user to:
    until it succeeds.
 
 ## Step 4: Connect the MCP server
+
+Before prompting the user to add anything, check whether the connector
+is already added by calling `get_instructions` with topic
+`season_context`. If it succeeds, the connector is already connected —
+tell the user something like "Looks like the scheduling tools are
+already connected — we can skip this step" and move directly to step 5.
+Don't dump the instructions content at them; the call is just a
+connectivity check.
+
+If the call fails, continue with the normal flow:
 
 Briefly tell the user this connects Claude to the scheduling tools
 (fetching schedules, checking calendars, etc.) and that the server is

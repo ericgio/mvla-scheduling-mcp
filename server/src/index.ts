@@ -7,6 +7,7 @@ import pino from 'pino';
 import { registerGotsportTool } from './tools/gotsport.js';
 import { registerCalendarTool } from './tools/calendar.js';
 import { registerBygaFieldsTool } from './tools/byga-fields.js';
+import { registerInstructionsTool } from './tools/instructions.js';
 
 const transport = (process.env.MCP_TRANSPORT ?? 'stdio').toLowerCase();
 const isHttp = transport === 'http';
@@ -23,6 +24,7 @@ function createServer(): McpServer {
   const server = new McpServer({ name: 'mvla-scheduling-mcp', version: '1.0.0' });
   registerGotsportTool(server, log);
   registerCalendarTool(server, log);
+  registerInstructionsTool(server, log);
   if (fieldAvailabilityEnabled) registerBygaFieldsTool(server, log);
   return server;
 }

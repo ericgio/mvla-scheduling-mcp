@@ -40,6 +40,19 @@ function CheckIcon() {
   );
 }
 
+function GitHubIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="currentColor">
+      <path d="M10.226 17.284c-2.965-.36-5.054-2.493-5.054-5.256 0-1.123.404-2.336 1.078-3.144-.292-.741-.247-2.314.09-2.965.898-.112 2.111.36 2.83 1.01.853-.269 1.752-.404 2.853-.404 1.1 0 1.999.135 2.807.382.696-.629 1.932-1.1 2.83-.988.315.606.36 2.179.067 2.942.72.854 1.101 2 1.101 3.167 0 2.763-2.089 4.852-5.098 5.234.763.494 1.28 1.572 1.28 2.807v2.336c0 .674.561 1.056 1.235.786 4.066-1.55 7.255-5.615 7.255-10.646C23.5 6.188 18.334 1 11.978 1 5.62 1 .5 6.188.5 12.545c0 4.986 3.167 9.12 7.435 10.669.606.225 1.19-.18 1.19-.786V20.63a2.9 2.9 0 0 1-1.078.224c-1.483 0-2.359-.808-2.987-2.313-.247-.607-.517-.966-1.034-1.033-.27-.023-.359-.135-.359-.27 0-.27.45-.471.898-.471.652 0 1.213.404 1.797 1.235.45.651.921.943 1.483.943.561 0 .92-.202 1.437-.719.382-.381.674-.718.944-.943" />
+    </svg>
+  );
+}
+
 function Link(props: HTMLProps<HTMLAnchorElement>) {
   return (
     <a target="_blank" rel="noreferrer" {...props}>
@@ -64,7 +77,6 @@ export default function App() {
         <h1>MVLA Scheduling Assistant</h1>
         <p>A Claude-powered scheduling tool for MVLA team managers.</p>
       </header>
-
       <section>
         <h2>Why Use This Tool?</h2>
         <p>
@@ -81,7 +93,6 @@ export default function App() {
           best options in seconds.
         </p>
       </section>
-
       <section>
         <h2>Get Started</h2>
         <p>
@@ -95,7 +106,6 @@ export default function App() {
             onClick={copyPrompt}
             aria-label="Copy to clipboard">
             {copied ? <CheckIcon /> : <CopyIcon />}
-            &nbsp;{copied ? 'Copied!' : 'Copy'}
           </button>
           <p>
             I want to set up the MVLA Scheduling Assistant. Please use the setup
@@ -104,26 +114,26 @@ export default function App() {
           <p>{SETUP_URL}</p>
         </div>
       </section>
-
       <section>
         <h2>How does it work?</h2>
         <p>
-          The tool is a <Link href="https://claude.ai">Claude.ai</Link> Project
-          — a persistent chat context that gives Claude access to your team's
-          season info and a set of tools for fetching live data. When you ask it
-          to schedule a game, it:
+          The tool is a smart assistant you chat with. You tell it what you need
+          — "I want to schedule a home game the weekend of September 12. The
+          other team requested a morning kickoff" — and it does the legwork:
         </p>
         <ol>
-          <li>Fetches available field slots from Byga</li>
-          <li>Fetches your team's schedule and your coach's schedule</li>
-          <li>Cross-references your personal calendar for conflicts</li>
-          <li>Suggests 2–3 ranked options with reasoning</li>
+          <li>Checks which fields are open</li>
+          <li>Looks at your team's schedule and your coach's schedule</li>
+          <li>
+            Checks your personal calendar so it doesn't pick a date your kid has
+            a recital
+          </li>
+          <li>Comes back with 2–3 good options and explains why</li>
         </ol>
         <p className="tagline">
-          No code to run. No spreadsheets. Just a conversation.
+          No spreadsheets. No tab-juggling. Just a conversation.
         </p>
       </section>
-
       <section>
         <h2>What will I need?</h2>
         <ul>
@@ -145,11 +155,10 @@ export default function App() {
           </li>
         </ul>
       </section>
-
       <section>
         <h2>Usage</h2>
         <p>Once set up, start a chat inside your project and ask naturally:</p>
-        <div className="examples">
+        <p className="examples">
           <div className="example">
             "Can you check field availability for the weekend of June 14–15?"
           </div>
@@ -160,12 +169,18 @@ export default function App() {
           <div className="example">
             "What does our schedule look like for the rest of the season?"
           </div>
-        </div>
+        </p>
+        <p>
+          Claude will fetch live data, flag any conflicts, and walk you through
+          the options. On confirmation, it can draft a message to the away team
+          manager ready to paste into GotSport.
+        </p>
       </section>
 
       <footer>
-        Copyright © {new Date().getFullYear()} Eric Giovanola &middot;{' '}
-        <Link href="https://github.com/ericgio/mvla-scheduling">GitHub</Link>
+        <Link href="https://github.com/ericgio/mvla-scheduling">
+          <GitHubIcon />
+        </Link>
       </footer>
     </div>
   );

@@ -19,27 +19,26 @@ body {
 h1 {
   font-size: 2rem;
   font-weight: 700;
-  margin-bottom: 12px;
 }
 
 h2 {
   font-size: 1.2rem;
   font-weight: 600;
-  margin-bottom: 12px;
-  color: #111827;
+  margin-bottom: 0.5rem;
 }
 
 p {
   color: #374151;
-  margin-bottom: 16px;
+  margin-bottom: 1rem;
 }
 p:last-child {
   margin-bottom: 0;
 }
 
 a {
-  color: #2563eb;
+  color: #d97757;
   text-decoration: none;
+  transition: color 250ms;
 }
 
 a:hover {
@@ -48,27 +47,31 @@ a:hover {
 
 ol,
 ul {
-  padding-left: 20px;
+  padding-left: 1.25rem;
+  margin-bottom: 1rem;
 }
 
 li {
-  margin-bottom: 6px;
+  margin-bottom: 0.5rem;
   color: #374151;
+}
+li:last-child {
+  margin-bottom: 0;
 }
 
 section {
-  margin-bottom: 40px;
+  margin-bottom: 2.5rem;
 }
 
 .container {
-  max-width: 680px;
+  max-width: 42.5rem;
   margin: 0 auto;
-  padding: 64px 24px;
+  padding: 4rem 1.5rem;
 }
 
 header {
   text-align: center;
-  margin-bottom: 48px;
+  margin-bottom: 3rem;
 }
 
 header img {
@@ -78,47 +81,47 @@ header img {
 
 header p {
   font-size: 1.2rem;
-  color: #6b7280;
+  color: #999;
   margin: 0 auto;
 }
 
 .tagline {
   font-size: 1rem;
   font-style: italic;
-  color: #6b7280;
-  margin-top: 16px;
 }
 
 .setup-box {
   position: relative;
   background: #fff;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   font-style: italic;
-  padding: 24px;
+  padding: 1.25rem 1.5rem;
+}
+
+.setup-box p {
+  color: #848484;
 }
 
 .setup-steps {
   list-style: decimal;
-  padding-left: 20px;
+  padding-left: 1.25rem;
 }
 
 .setup-steps li {
-  margin-bottom: 8px;
+  margin-bottom: 0.5rem;
 }
 
 .examples {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.75rem;
 }
 
 .example {
   background: #fff;
-  border: 1px solid #e5e7eb;
-  border-left: 3px solid #2563eb;
-  border-radius: 4px;
-  padding: 10px 14px;
+  border-left: 3px solid #d97757;
+  padding: 0.5rem 0.75rem;
   font-style: italic;
   color: #374151;
   font-size: 0.95rem;
@@ -126,25 +129,31 @@ header p {
 
 .copy-btn {
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: 0.25rem;
+  right: 0.25rem;
   display: flex;
   align-items: center;
-  padding: 4px 8px;
+  padding: 0.5rem;
   background: none;
   border: none;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   color: #9ca3af;
   cursor: pointer;
   font-family: inherit;
   font-size: 0.85rem;
   font-style: normal;
   line-height: 1;
-  gap: 2px;
+  gap: 0.125rem;
+  transition: background 250ms ease;
 }
 
 .copy-btn:hover {
   background: #f3f4f6;
+  color: #374151;
+}
+
+.copy-btn:active {
+  background: #e5e7eb;
   color: #374151;
 }
 
@@ -153,10 +162,19 @@ header p {
 }
 
 footer {
-  margin-top: 64px;
-  padding-top: 24px;
+  margin-top: 4rem;
+  padding-top: 1.5rem;
   border-top: 1px solid #e5e7eb;
   font-size: 0.85rem;
   color: #9ca3af;
   text-align: center;
+}
+
+footer a {
+  color: #9ca3af;
+}
+
+footer a:hover {
+  color: #6b7280;
+  text-decoration: none;
 }

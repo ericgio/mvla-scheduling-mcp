@@ -73,6 +73,9 @@ When asked to schedule a home game:
 
 Check the manager's personal calendars before suggesting any slot, if any are available. They may be connected via the Google Calendar connector or listed manually in these instructions. Use `get_calendar_schedule` to fetch any manual ones.
 
+> - **[e.g. Personal]:** [iCal URL]
+> - **[e.g. Kids]:** [iCal URL]
+
 ## Troubleshooting
 
 - **Claude can't find a connected browser**: Make sure the user is using Claude Desktop! Claude.ai in the browser cannot connect to Claude in Chrome. Make sure Chrome is open with the Claude in Chrome extension signed in. If it's installed but not connecting, try clicking the extension icon to open the side panel and verify you're signed in.

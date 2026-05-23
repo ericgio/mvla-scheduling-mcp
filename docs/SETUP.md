@@ -139,6 +139,16 @@ Tell the user to:
 
 ## Step 5: Connect calendars (optional)
 
+Before prompting the user to connect anything, check whether the Google
+Calendar connector is already available by calling `list_calendars`. If
+it succeeds, the connector is already connected — skip straight to the
+verification flow below for the Google Calendar case (tell the user how
+many calendars you can see, ask which ones to check for conflicts).
+Don't make them go install something they already have.
+
+If the call fails or the connector isn't available, continue with the
+normal flow:
+
 Tell the user this step is optional but recommended — it lets Claude
 check their personal calendar for conflicts when suggesting game slots.
 

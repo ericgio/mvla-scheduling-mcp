@@ -1,6 +1,14 @@
+import { readFileSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { Logger } from 'pino';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+// Resolves relative to the compiled file (server/dist/tools/), so three hops up
+// reaches the repo root regardless of process.cwd().
+const WORKAROUND_PATH = resolve(__dirname, '../../../docs/instructions/field_availability_workaround.md');
 
 interface Slot {
   id: string;
@@ -46,31 +54,54 @@ function formatSlot(slot: Slot): FormattedSlot {
 const bygaFieldsSchema = {
   schedule_id: z.string().describe('Byga game schedule ID'),
   team_id: z.string().describe('Byga team ID'),
+  format: z.string().describe('Field format required for the team (e.g. "7v7", "9v9", "11v11")'),
   start_date: z.string().describe('Start date in YYYY-MM-DD format'),
   end_date: z.string().describe('End date in YYYY-MM-DD format'),
-  available_only: z
-    .boolean()
-    .optional()
-    .describe('If true, return only available slots (default: false)'),
 };
 
-export function registerBygaFieldsTool(
-  server: McpServer,
-  log: Logger,
-): void {
+export function registerBygaFieldsTool(server: McpServer, log: Logger): void {
   server.tool(
     'get_field_availability',
-    'Fetch field slot availability from Byga for a date range. Returns all slots (available and ' +
-      'booked) so scheduling conflicts can be detected.',
+    'Returns field slot availability for a date range, or workaround instructions if the Byga API ' +
+      'is not yet connected. Always call with all required params. ' +
+      'Check the `status` field in the response: ' +
+      'if `"data"`, use `slots` directly; ' +
+      'if `"unconnected"`, follow the `instructions` to fetch availability via Claude in Chrome — ' +
+      'the params you passed are echoed in `params_received` for reference. ' +
+      'Required params: schedule_id, team_id, format, start_date, end_date.',
     bygaFieldsSchema,
-    async ({ schedule_id, team_id, start_date, end_date, available_only = false }) => {
+    async ({ schedule_id, team_id, format, start_date, end_date }) => {
       const t0 = Date.now();
-      log.info({ tool: 'get_field_availability', schedule_id, team_id, start_date, end_date, available_only }, 'tool call');
+      log.info({ tool: 'get_field_availability', schedule_id, team_id, format, start_date, end_date }, 'tool call');
 
+      const params_received = { schedule_id, team_id, format, start_date, end_date };
+      const connected = process.env.ENABLE_FIELD_AVAILABILITY === 'true';
+
+      if (!connected) {
+        try {
+          const instructions = readFileSync(WORKAROUND_PATH, 'utf-8');
+          log.info({ tool: 'get_field_availability', latency_ms: Date.now() - t0, ok: true, mode: 'unconnected' }, 'tool done');
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({ status: 'unconnected', instructions, params_received }, null, 2),
+            }],
+          };
+        } catch (err) {
+          const message =
+            'Could not read field availability workaround instructions: ' +
+            (err instanceof Error ? err.message : String(err)) +
+            ` (looked at ${WORKAROUND_PATH})`;
+          log.error({ tool: 'get_field_availability', latency_ms: Date.now() - t0, ok: false, error: message }, 'tool error');
+          return { isError: true, content: [{ type: 'text', text: message }] };
+        }
+      }
+
+      // Connected mode: fetch live slot data from Byga API.
       const bygaBase = process.env.BYGA_BASE_URL ?? '';
-
       if (!bygaBase) {
         return {
+          isError: true,
           content: [{ type: 'text', text: 'Error: BYGA_BASE_URL is not set (e.g. https://yourclub.byga.net).' }],
         };
       }
@@ -92,41 +123,27 @@ export function registerBygaFieldsTool(
 
         if (!res.ok) {
           return {
-            content: [
-              {
-                type: 'text',
-                text: `Byga returned HTTP ${res.status}. Check that BYGA_BASE_URL, schedule_id, and team_id are correct.`,
-              },
-            ],
+            isError: true,
+            content: [{
+              type: 'text',
+              text: `Byga returned HTTP ${res.status}. Check that BYGA_BASE_URL, schedule_id, and team_id are correct.`,
+            }],
           };
         }
 
         const data = (await res.json()) as Slot[];
+        // Filter by format: slot title contains the format string (e.g. "7v7").
         const slots = data
-          .filter((s) => !available_only || s.available === true)
+          .filter((s) => s.title.includes(format))
           .map(formatSlot);
 
-        const availableCount = slots.filter((s) => s.available).length;
-        let output = `Found ${slots.length} total slots (${availableCount} available) between ${start_date} and ${end_date}.\n\n`;
-
-        const byDate: Record<string, FormattedSlot[]> = {};
-        for (const slot of slots) {
-          if (!byDate[slot.date]) byDate[slot.date] = [];
-          byDate[slot.date].push(slot);
-        }
-        for (const [date, dateSlots] of Object.entries(byDate)) {
-          output += `${date}:\n`;
-          for (const s of dateSlots) {
-            output += `  ${s.startTime} – ${s.endTime}  ${s.field}  [${s.available ? '✓ AVAILABLE' : '✗ booked'}]\n`;
-          }
-          output += '\n';
-        }
+        const result = { status: 'data', slots, fetchedAt: new Date().toISOString() };
 
         log.info(
-          { tool: 'get_field_availability', latency_ms: Date.now() - t0, ok: true, slotCount: slots.length },
+          { tool: 'get_field_availability', latency_ms: Date.now() - t0, ok: true, mode: 'connected', slotCount: slots.length },
           'tool done',
         );
-        return { content: [{ type: 'text', text: output }] };
+        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         log.error(

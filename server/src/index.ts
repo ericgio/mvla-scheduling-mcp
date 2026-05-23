@@ -18,14 +18,12 @@ const log = pino(
   pino.destination(isHttp ? 1 : 2),
 );
 
-const fieldAvailabilityEnabled = process.env.ENABLE_FIELD_AVAILABILITY === 'true';
-
 function createServer(): McpServer {
   const server = new McpServer({ name: 'mvla-scheduling-mcp', version: '1.0.0' });
   registerGotsportTool(server, log);
   registerCalendarTool(server, log);
   registerInstructionsTool(server, log);
-  if (fieldAvailabilityEnabled) registerBygaFieldsTool(server, log);
+  registerBygaFieldsTool(server, log);
   return server;
 }
 

@@ -7,7 +7,11 @@ import type { CalendarResult } from '../lib/types.js';
 import { withToolLogging } from '../lib/tool-logging.js';
 
 function isVEvent(e: unknown): e is VEvent {
-  return typeof e === 'object' && e !== null && (e as { type?: string }).type === 'VEVENT';
+  return (
+    typeof e === 'object' &&
+    e !== null &&
+    (e as { type?: string }).type === 'VEVENT'
+  );
 }
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
@@ -17,7 +21,9 @@ const calendarSchema = {
   start_date: z
     .string()
     .optional()
-    .describe('Only include events on or after this date (YYYY-MM-DD). Defaults to today.'),
+    .describe(
+      'Only include events on or after this date (YYYY-MM-DD). Defaults to today.',
+    ),
   end_date: z
     .string()
     .optional()
@@ -38,59 +44,74 @@ export function registerCalendarTool(server: McpServer, log: Logger): void {
       'or any external calendar. Accepts optional date range to filter results.',
     calendarSchema,
     async ({ url, start_date, end_date, force_refresh }) =>
-      withToolLogging('get_calendar_schedule', { url, start_date, end_date }, async () => {
-        const cacheKey = `calendar:${url}`;
+      withToolLogging(
+        'get_calendar_schedule',
+        { url, start_date, end_date },
+        async () => {
+          const cacheKey = `calendar:${url}`;
 
-        const now = new Date();
-        const from = start_date ? new Date(start_date) : now;
-        const to = end_date
-          ? new Date(end_date)
-          : new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
+          const now = new Date();
+          const from = start_date ? new Date(start_date) : now;
+          const to = end_date
+            ? new Date(end_date)
+            : new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
 
-        const cached = !force_refresh ? cacheGet<CalendarResponse>(cacheKey) : null;
-        const raw = cached ?? (await ical.async.fromURL(url));
-        if (!cached) cacheSet(cacheKey, raw, CACHE_TTL_MS);
+          const cached = !force_refresh
+            ? cacheGet<CalendarResponse>(cacheKey)
+            : null;
+          const raw = cached ?? (await ical.async.fromURL(url));
+          if (!cached) cacheSet(cacheKey, raw, CACHE_TTL_MS);
 
-        const events = Object.values(raw)
-          .filter(isVEvent)
-          .filter((e) => {
-            const start = new Date(e.start);
-            return start >= from && start <= to;
-          })
-          .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
-          .map((e) => {
-            const start = new Date(e.start);
-            const end = new Date(e.end as Date);
-            const summary = typeof e.summary === 'string' ? e.summary : (e.summary as { val?: string })?.val ?? '(no title)';
-            const location = typeof e.location === 'string' ? e.location : null;
-            return {
-              summary,
-              date: start.toLocaleDateString('en-US', {
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric',
-              }),
-              start: start.toLocaleTimeString('en-US', {
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true,
-              }),
-              end: end.toLocaleTimeString('en-US', {
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true,
-              }),
-              location,
-            };
-          });
+          const events = Object.values(raw)
+            .filter(isVEvent)
+            .filter((e) => {
+              const start = new Date(e.start);
+              return start >= from && start <= to;
+            })
+            .sort(
+              (a, b) =>
+                new Date(a.start).getTime() - new Date(b.start).getTime(),
+            )
+            .map((e) => {
+              const start = new Date(e.start);
+              const end = new Date(e.end as Date);
+              const summary =
+                typeof e.summary === 'string'
+                  ? e.summary
+                  : ((e.summary as { val?: string })?.val ?? '(no title)');
+              const location =
+                typeof e.location === 'string' ? e.location : null;
+              return {
+                summary,
+                date: start.toLocaleDateString('en-US', {
+                  weekday: 'short',
+                  month: 'short',
+                  day: 'numeric',
+                }),
+                start: start.toLocaleTimeString('en-US', {
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true,
+                }),
+                end: end.toLocaleTimeString('en-US', {
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true,
+                }),
+                location,
+              };
+            });
 
-        const result: CalendarResult = {
-          eventCount: events.length,
-          events,
-          fetchedAt: new Date().toISOString(),
-        };
+          const result: CalendarResult = {
+            eventCount: events.length,
+            events,
+            fetchedAt: new Date().toISOString(),
+          };
 
-        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
-      }),
+          return {
+            content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          };
+        },
+      ),
   );
 }

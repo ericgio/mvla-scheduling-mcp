@@ -38,8 +38,14 @@ export async function withToolLogging<T>(
 
   try {
     const result = await handler();
-    const isErrorResult = typeof result === 'object' && result !== null && 'isError' in result && Boolean((result as ToolErrorResult).isError);
-    const errorMessage = isErrorResult ? getResultErrorMessage(result as ToolErrorResult) : undefined;
+    const isErrorResult =
+      typeof result === 'object' &&
+      result !== null &&
+      'isError' in result &&
+      Boolean((result as ToolErrorResult).isError);
+    const errorMessage = isErrorResult
+      ? getResultErrorMessage(result as ToolErrorResult)
+      : undefined;
     emitToolLog(tool, params, !isErrorResult, startedAt, errorMessage);
     return result;
   } catch (err) {
@@ -54,6 +60,8 @@ function getResultErrorMessage(result: ToolErrorResult): string | undefined {
     return undefined;
   }
 
-  const firstText = result.content.find((entry) => typeof entry?.text === 'string')?.text;
+  const firstText = result.content.find(
+    (entry) => typeof entry?.text === 'string',
+  )?.text;
   return typeof firstText === 'string' ? firstText : undefined;
 }

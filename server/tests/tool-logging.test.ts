@@ -10,7 +10,11 @@ test('withToolLogging emits a single success JSON line', async () => {
   };
 
   try {
-    const result = await withToolLogging('get_gotsport_schedule', { event_id: '123', team_id: '456' }, async () => ({ ok: true }));
+    const result = await withToolLogging(
+      'get_gotsport_schedule',
+      { event_id: '123', team_id: '456' },
+      async () => ({ ok: true }),
+    );
 
     assert.deepEqual(result, { ok: true });
     assert.equal(lines.length, 1);
@@ -35,9 +39,13 @@ test('withToolLogging emits a single failure JSON line', async () => {
   try {
     await assert.rejects(
       () =>
-        withToolLogging('get_calendar_schedule', { url: 'https://example.com' }, async () => {
-          throw new Error('boom');
-        }),
+        withToolLogging(
+          'get_calendar_schedule',
+          { url: 'https://example.com' },
+          async () => {
+            throw new Error('boom');
+          },
+        ),
       /boom/,
     );
 

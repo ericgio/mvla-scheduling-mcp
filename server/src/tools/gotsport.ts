@@ -5,6 +5,7 @@ import { fetchBytes } from '../lib/http.js';
 import { parseScheduleXlsx } from '../lib/xlsx.js';
 import { cacheGet, cacheSet } from '../lib/cache.js';
 import type { ScheduleResult } from '../lib/types.js';
+import { withToolLogging } from '../lib/tool-logging.js';
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
@@ -33,19 +34,13 @@ export function registerGotsportTool(server: McpServer, log: Logger): void {
       'current data (e.g. checking a result from a game that just finished, or verifying a ' +
       'recent schedule change).',
     gotsportSchema,
-    async ({ event_id, team_id, force_refresh }) => {
-      const t0 = Date.now();
-      const cacheKey = `gotsport:${event_id}:${team_id}`;
-      log.info({ tool: 'get_gotsport_schedule', event_id, team_id, force_refresh }, 'tool call');
+    async ({ event_id, team_id, force_refresh }) =>
+      withToolLogging('get_gotsport_schedule', { event_id, team_id }, async () => {
+        const cacheKey = `gotsport:${event_id}:${team_id}`;
 
-      try {
         if (!force_refresh) {
           const cached = cacheGet<ScheduleResult>(cacheKey);
           if (cached) {
-            log.info(
-              { tool: 'get_gotsport_schedule', latency_ms: Date.now() - t0, ok: true, source: 'cache' },
-              'tool done',
-            );
             return { content: [{ type: 'text', text: JSON.stringify(cached, null, 2) }] };
           }
         }
@@ -74,22 +69,7 @@ export function registerGotsportTool(server: McpServer, log: Logger): void {
 
         cacheSet(cacheKey, result, CACHE_TTL_MS);
 
-        log.info(
-          { tool: 'get_gotsport_schedule', latency_ms: Date.now() - t0, ok: true, source: 'fetch' },
-          'tool done',
-        );
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        log.error(
-          { tool: 'get_gotsport_schedule', latency_ms: Date.now() - t0, ok: false, error: message },
-          'tool error',
-        );
-        return {
-          isError: true,
-          content: [{ type: 'text', text: `Failed to fetch GotSport schedule: ${message}` }],
-        };
-      }
-    },
+      }),
   );
 }

@@ -4,6 +4,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { Logger } from 'pino';
 import { cacheGet, cacheSet } from '../lib/cache.js';
 import type { CalendarResult } from '../lib/types.js';
+import { withToolLogging } from '../lib/tool-logging.js';
 
 function isVEvent(e: unknown): e is VEvent {
   return typeof e === 'object' && e !== null && (e as { type?: string }).type === 'VEVENT';
@@ -36,12 +37,10 @@ export function registerCalendarTool(server: McpServer, log: Logger): void {
       'or any standard .ics feed. Use for coach calendars, team schedules, away team conflicts, ' +
       'or any external calendar. Accepts optional date range to filter results.',
     calendarSchema,
-    async ({ url, start_date, end_date, force_refresh }) => {
-      const t0 = Date.now();
-      const cacheKey = `calendar:${url}`;
-      log.info({ tool: 'get_calendar_schedule', url, start_date, end_date, force_refresh }, 'tool call');
+    async ({ url, start_date, end_date, force_refresh }) =>
+      withToolLogging('get_calendar_schedule', { url, start_date, end_date }, async () => {
+        const cacheKey = `calendar:${url}`;
 
-      try {
         const now = new Date();
         const from = start_date ? new Date(start_date) : now;
         const to = end_date
@@ -91,22 +90,7 @@ export function registerCalendarTool(server: McpServer, log: Logger): void {
           fetchedAt: new Date().toISOString(),
         };
 
-        log.info(
-          { tool: 'get_calendar_schedule', latency_ms: Date.now() - t0, ok: true, source: cached ? 'cache' : 'fetch' },
-          'tool done',
-        );
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        log.error(
-          { tool: 'get_calendar_schedule', latency_ms: Date.now() - t0, ok: false, error: message },
-          'tool error',
-        );
-        return {
-          isError: true,
-          content: [{ type: 'text', text: `Failed to fetch calendar: ${message}` }],
-        };
-      }
-    },
+      }),
   );
 }

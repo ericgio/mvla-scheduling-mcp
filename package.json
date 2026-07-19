@@ -13,6 +13,7 @@
     "build:server": "yarn workspace mvla-scheduling-mcp build",
     "dev:client": "yarn workspace mvla-client dev",
     "dev:server": "yarn workspace mvla-scheduling-mcp dev",
-    "start": "yarn workspace mvla-scheduling-mcp start"
+    "start": "yarn workspace mvla-scheduling-mcp start",
+    "summary:failures": "node scripts/daily-failure-summary.js"
   }
 }

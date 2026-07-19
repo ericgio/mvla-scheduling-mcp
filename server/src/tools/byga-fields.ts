@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { Logger } from 'pino';
+import { withToolLogging } from '../lib/tool-logging.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // Resolves relative to the compiled file (server/dist/tools/), so three hops up
@@ -70,91 +71,81 @@ export function registerBygaFieldsTool(server: McpServer, log: Logger): void {
       'the params you passed are echoed in `params_received` for reference. ' +
       'Required params: schedule_id, team_id, format, start_date, end_date.',
     bygaFieldsSchema,
-    async ({ schedule_id, team_id, format, start_date, end_date }) => {
-      const t0 = Date.now();
-      log.info({ tool: 'get_field_availability', schedule_id, team_id, format, start_date, end_date }, 'tool call');
+    async ({ schedule_id, team_id, format, start_date, end_date }) =>
+      withToolLogging('get_field_availability', { schedule_id, team_id }, async () => {
+        const params_received = { schedule_id, team_id, format, start_date, end_date };
+        const connected = process.env.ENABLE_FIELD_AVAILABILITY === 'true';
 
-      const params_received = { schedule_id, team_id, format, start_date, end_date };
-      const connected = process.env.ENABLE_FIELD_AVAILABILITY === 'true';
-
-      if (!connected) {
-        try {
-          const instructions = readFileSync(WORKAROUND_PATH, 'utf-8');
-          log.info({ tool: 'get_field_availability', latency_ms: Date.now() - t0, ok: true, mode: 'unconnected' }, 'tool done');
-          return {
-            content: [{
-              type: 'text',
-              text: JSON.stringify({ status: 'unconnected', instructions, params_received }, null, 2),
-            }],
-          };
-        } catch (err) {
-          const message =
-            'Could not read field availability workaround instructions: ' +
-            (err instanceof Error ? err.message : String(err)) +
-            ` (looked at ${WORKAROUND_PATH})`;
-          log.error({ tool: 'get_field_availability', latency_ms: Date.now() - t0, ok: false, error: message }, 'tool error');
-          return { isError: true, content: [{ type: 'text', text: message }] };
+        if (!connected) {
+          try {
+            const instructions = readFileSync(WORKAROUND_PATH, 'utf-8');
+            return {
+              content: [{
+                type: 'text',
+                text: JSON.stringify({ status: 'unconnected', instructions, params_received }, null, 2),
+              }],
+            };
+          } catch (err) {
+            const message =
+              'Could not read field availability workaround instructions: ' +
+              (err instanceof Error ? err.message : String(err)) +
+              ` (looked at ${WORKAROUND_PATH})`;
+            return { isError: true, content: [{ type: 'text', text: message }] };
+          }
         }
-      }
 
-      // Connected mode: fetch live slot data from Byga API.
-      const bygaBase = process.env.BYGA_BASE_URL ?? '';
-      if (!bygaBase) {
-        return {
-          isError: true,
-          content: [{ type: 'text', text: 'Error: BYGA_BASE_URL is not set (e.g. https://yourclub.byga.net).' }],
-        };
-      }
-
-      const startIso = encodeURIComponent(toISOWithOffset(start_date, false));
-      const endIso = encodeURIComponent(toISOWithOffset(end_date, true));
-      const url =
-        `${bygaBase}/events?game_schedule_id=${schedule_id}&show_usage=true&slots=false` +
-        `&start=${startIso}&end=${endIso}&_=${Date.now()}`;
-
-      try {
-        const res = await fetch(url, {
-          headers: {
-            Accept: 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-            Referer: `${bygaBase}/game_schedules/${schedule_id}?tab=field_request&team_id=${team_id}`,
-          },
-        });
-
-        if (!res.ok) {
+        // Connected mode: fetch live slot data from Byga API.
+        const bygaBase = process.env.BYGA_BASE_URL ?? '';
+        if (!bygaBase) {
+          const message = 'Error: BYGA_BASE_URL is not set (e.g. https://yourclub.byga.net).';
           return {
             isError: true,
-            content: [{
-              type: 'text',
-              text: `Byga returned HTTP ${res.status}. Check that BYGA_BASE_URL, schedule_id, and team_id are correct.`,
-            }],
+            content: [{ type: 'text', text: message }],
           };
         }
 
-        const data = (await res.json()) as Slot[];
-        // Filter by format: slot title contains the format string (e.g. "7v7").
-        const slots = data
-          .filter((s) => s.title.includes(format))
-          .map(formatSlot);
+        const startIso = encodeURIComponent(toISOWithOffset(start_date, false));
+        const endIso = encodeURIComponent(toISOWithOffset(end_date, true));
+        const url =
+          `${bygaBase}/events?game_schedule_id=${schedule_id}&show_usage=true&slots=false` +
+          `&start=${startIso}&end=${endIso}&_=${Date.now()}`;
 
-        const result = { status: 'data', slots, fetchedAt: new Date().toISOString() };
+        try {
+          const res = await fetch(url, {
+            headers: {
+              Accept: 'application/json',
+              'X-Requested-With': 'XMLHttpRequest',
+              Referer: `${bygaBase}/game_schedules/${schedule_id}?tab=field_request&team_id=${team_id}`,
+            },
+          });
 
-        log.info(
-          { tool: 'get_field_availability', latency_ms: Date.now() - t0, ok: true, mode: 'connected', slotCount: slots.length },
-          'tool done',
-        );
-        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        log.error(
-          { tool: 'get_field_availability', latency_ms: Date.now() - t0, ok: false, error: message },
-          'tool error',
-        );
-        return {
-          isError: true,
-          content: [{ type: 'text', text: `Failed to fetch from Byga: ${message}` }],
-        };
-      }
-    },
+          if (!res.ok) {
+            const message = `Byga returned HTTP ${res.status}. Check that BYGA_BASE_URL, schedule_id, and team_id are correct.`;
+            return {
+              isError: true,
+              content: [{
+                type: 'text',
+                text: message,
+              }],
+            };
+          }
+
+          const data = (await res.json()) as Slot[];
+          // Filter by format: slot title contains the format string (e.g. "7v7").
+          const slots = data
+            .filter((s) => s.title.includes(format))
+            .map(formatSlot);
+
+          const result = { status: 'data', slots, fetchedAt: new Date().toISOString() };
+
+          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+        } catch (err) {
+          const message = err instanceof Error ? err.message : String(err);
+          return {
+            isError: true,
+            content: [{ type: 'text', text: `Failed to fetch from Byga: ${message}` }],
+          };
+        }
+      }),
   );
 }

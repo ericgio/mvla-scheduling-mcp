@@ -42,3 +42,23 @@ yarn start          # runs server/dist/index.js
 ```bash
 yarn dev:server     # runs with tsx — no build step needed
 ```
+
+## Basic logging and failure summaries
+
+The MCP server now emits one JSON line per tool invocation to stdout with the shape:
+
+```json
+{"timestamp":"...","tool":"get_gotsport_schedule","params":{"event_id":"123","team_id":"456"},"success":true,"duration_ms":42}
+```
+
+For daily summaries, run:
+
+```bash
+yarn summary:failures
+```
+
+The script scans the last 24 hours of pm2 logs under `~/.pm2/logs` for entries with `"success":false` and prints a summary. If `FAILURE_SUMMARY_EMAIL_TO` is set and `sendmail` is available, it will email the summary; otherwise it prints the summary to stdout. A cron example is:
+
+```bash
+0 8 * * * cd /path/to/mvla && FAILURE_SUMMARY_EMAIL_TO=you@example.com yarn summary:failures
+```

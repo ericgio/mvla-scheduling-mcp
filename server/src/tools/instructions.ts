@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { Logger } from 'pino';
+import { withToolLogging } from '../lib/tool-logging.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // Resolves relative to the compiled file (server/dist/tools/), so three hops up
@@ -32,30 +33,25 @@ export function registerInstructionsTool(server: McpServer, log: Logger): void {
       '(extraction steps, output rules, template, new-season flow). ' +
       'Call this when the user has no season context doc in Project Knowledge or asks to set up a new season.',
     instructionsSchema,
-    async ({ topic }) => {
-      const t0 = Date.now();
-      log.info({ tool: 'get_instructions', topic }, 'tool call');
+    async ({ topic }) =>
+      withToolLogging('get_instructions', { topic }, async () => {
+        const filename = TOPICS[topic];
+        if (!filename) {
+          const message = `Unknown topic "${topic}". Valid topics: ${topicList}`;
+          return { isError: true, content: [{ type: 'text', text: message }] };
+        }
 
-      const filename = TOPICS[topic];
-      if (!filename) {
-        const message = `Unknown topic "${topic}". Valid topics: ${topicList}`;
-        log.warn({ tool: 'get_instructions', topic }, 'unknown topic');
-        return { isError: true, content: [{ type: 'text', text: message }] };
-      }
-
-      const filePath = resolve(DOCS_DIR, filename);
-      try {
-        const content = readFileSync(filePath, 'utf-8');
-        log.info({ tool: 'get_instructions', latency_ms: Date.now() - t0, ok: true, topic }, 'tool done');
-        return { content: [{ type: 'text', text: content }] };
-      } catch (err) {
-        const message =
-          `Could not read instructions for "${topic}": ` +
-          (err instanceof Error ? err.message : String(err)) +
-          ` (looked at ${filePath})`;
-        log.error({ tool: 'get_instructions', latency_ms: Date.now() - t0, ok: false, topic, error: message }, 'tool error');
-        return { isError: true, content: [{ type: 'text', text: message }] };
-      }
-    },
+        const filePath = resolve(DOCS_DIR, filename);
+        try {
+          const content = readFileSync(filePath, 'utf-8');
+          return { content: [{ type: 'text', text: content }] };
+        } catch (err) {
+          const message =
+            `Could not read instructions for "${topic}": ` +
+            (err instanceof Error ? err.message : String(err)) +
+            ` (looked at ${filePath})`;
+          return { isError: true, content: [{ type: 'text', text: message }] };
+        }
+      }),
   );
 }

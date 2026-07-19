@@ -63,7 +63,7 @@ For daily summaries, run:
 yarn summary:failures
 ```
 
-The script scans the last 24 hours of pm2 logs under `~/.pm2/logs` for entries with `"success":false` and prints a summary. If `FAILURE_SUMMARY_EMAIL_TO` is set and `RESEND_API_KEY` is available in the project dotenv file, it will email the summary through Resend; otherwise it prints the summary to stdout. Put those values in the project env file used by the server (for example, [server/.env](server/.env) or a repo-level `.env` when present), then run:
+The script scans the last 24 hours of mvla's pm2 logs for entries with `"success":false` and prints a summary. It only reads the exact filenames `mvla.ericgio.com-out.log` and `mvla.ericgio.com-error.log` from the pm2 log directory, rather than walking every log in `~/.pm2/logs`, and it streams each file line-by-line so a large log cannot blow up memory. If `FAILURE_SUMMARY_EMAIL_TO` is set and `RESEND_API_KEY` is available in the project dotenv file, it will email the summary through Resend; otherwise it prints the summary to stdout. Put those values in the project env file used by the server (for example, [server/.env](server/.env) or a repo-level `.env` when present), then run:
 
 ```bash
 yarn summary:failures

@@ -1,19 +1,51 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { loadProjectEnv, sendFailureSummaryEmail } from './daily-failure-summary.js';
+import {
+  loadProjectEnv,
+  resolveTargetLogFiles,
+  sendFailureSummaryEmail,
+} from './daily-failure-summary.js';
 
 test('loads Resend config from a project dotenv file', () => {
   const tempDir = mkdtempSync(path.join(os.tmpdir(), 'mvla-summary-'));
-  writeFileSync(path.join(tempDir, '.env'), 'RESEND_API_KEY=from-file\nFAILURE_SUMMARY_EMAIL_TO=ops@example.com\n');
+  writeFileSync(
+    path.join(tempDir, '.env'),
+    'RESEND_API_KEY=from-file\nFAILURE_SUMMARY_EMAIL_TO=ops@example.com\n',
+  );
   try {
     delete process.env.RESEND_API_KEY;
     delete process.env.FAILURE_SUMMARY_EMAIL_TO;
     loadProjectEnv(tempDir);
     assert.equal(process.env.RESEND_API_KEY, 'from-file');
     assert.equal(process.env.FAILURE_SUMMARY_EMAIL_TO, 'ops@example.com');
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('resolves only the mvla pm2 log files by exact filename', () => {
+  const tempDir = mkdtempSync(path.join(os.tmpdir(), 'mvla-summary-'));
+  mkdirSync(path.join(tempDir, 'nested'), { recursive: true });
+  writeFileSync(path.join(tempDir, 'mvla.ericgio.com-out.log'), '{}\n');
+  writeFileSync(path.join(tempDir, 'mvla.ericgio.com-error.log'), '{}\n');
+  writeFileSync(path.join(tempDir, 'onolog-api-error.log'), '{}\n');
+  writeFileSync(
+    path.join(tempDir, 'nested', 'mvla.ericgio.com-out.log'),
+    '{}\n',
+  );
+
+  try {
+    const resolved = resolveTargetLogFiles(
+      [tempDir],
+      ['mvla.ericgio.com-out.log', 'mvla.ericgio.com-error.log'],
+    );
+    assert.deepEqual(resolved.map((entry) => path.basename(entry)).sort(), [
+      'mvla.ericgio.com-error.log',
+      'mvla.ericgio.com-out.log',
+    ]);
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
   }
@@ -40,10 +72,13 @@ test('sends failure summary via Resend', async () => {
   assert.equal(captured.url, 'https://api.resend.com/emails');
   assert.equal(captured.options.method, 'POST');
   assert.equal(captured.options.headers.Authorization, 'Bearer test-key');
-  assert.deepEqual(captured.options.body, JSON.stringify({
-    from: 'alerts@resend.dev',
-    to: ['alerts@example.com'],
-    subject: 'Subject line',
-    text: 'Subject line',
-  }));
+  assert.deepEqual(
+    captured.options.body,
+    JSON.stringify({
+      from: 'alerts@resend.dev',
+      to: ['alerts@example.com'],
+      subject: 'Subject line',
+      text: 'Subject line',
+    }),
+  );
 });

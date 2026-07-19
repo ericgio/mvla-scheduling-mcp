@@ -1,11 +1,14 @@
 #!/usr/bin/env node
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { createReadStream, existsSync } from 'node:fs';
+import { createInterface } from 'node:readline';
 import { homedir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { config as loadEnv } from 'dotenv';
 
-export function loadProjectEnv(baseDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')) {
+export function loadProjectEnv(
+  baseDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'),
+) {
   const resolvedBase = path.resolve(baseDir);
   const candidates = [
     path.join(resolvedBase, '.env'),
@@ -36,6 +39,10 @@ loadProjectEnv();
 const oneDayMs = 24 * 60 * 60 * 1000;
 const now = Date.now();
 const cutoff = now - oneDayMs;
+const defaultTargetLogFiles = [
+  'mvla.ericgio.com-out.log',
+  'mvla.ericgio.com-error.log',
+];
 const candidateDirs = [
   process.env.PM2_LOG_DIR,
   process.env.PM2_LOGS_DIR,
@@ -44,24 +51,33 @@ const candidateDirs = [
   path.join('/var', 'www', '.pm2', 'logs'),
 ].filter(Boolean);
 
-function findLogFiles(baseDir) {
-  if (!baseDir || !existsSync(baseDir)) {
-    return [];
-  }
+export function resolveTargetLogFiles(
+  baseDirs = candidateDirs,
+  targetNames = defaultTargetLogFiles,
+) {
+  const normalizedTargetNames = Array.isArray(targetNames)
+    ? targetNames
+    : (targetNames ?? '')
+        .split(',')
+        .map((entry) => entry.trim())
+        .filter(Boolean);
+  const resolved = [];
+  const seen = new Set();
 
-  const results = [];
-  const entries = readdirSync(baseDir, { withFileTypes: true });
-  for (const entry of entries) {
-    const fullPath = path.join(baseDir, entry.name);
-    if (entry.isDirectory()) {
-      results.push(...findLogFiles(fullPath));
+  for (const baseDir of baseDirs) {
+    if (!baseDir || !existsSync(baseDir)) {
       continue;
     }
-    if (entry.isFile() && entry.name.toLowerCase().endsWith('.log')) {
-      results.push(fullPath);
+    for (const targetName of normalizedTargetNames) {
+      const fullPath = path.join(baseDir, targetName);
+      if (!seen.has(fullPath) && existsSync(fullPath)) {
+        seen.add(fullPath);
+        resolved.push(fullPath);
+      }
     }
   }
-  return results;
+
+  return resolved;
 }
 
 function parseTimestamp(value) {
@@ -72,40 +88,46 @@ function parseTimestamp(value) {
   return Number.isNaN(parsed) ? null : parsed;
 }
 
-function collectFailures() {
-  const logFiles = [...new Set(candidateDirs.flatMap(findLogFiles))];
+export async function collectFailures() {
+  const logFiles = resolveTargetLogFiles();
   const failures = [];
 
   for (const logFile of logFiles) {
-    const contents = readFileSync(logFile, 'utf8');
-    const lines = contents.split(/\r?\n/);
-    for (const rawLine of lines) {
-      const line = rawLine.trim();
-      if (!line) {
-        continue;
-      }
+    const stream = createReadStream(logFile, { encoding: 'utf8' });
+    const rl = createInterface({ input: stream, crlfDelay: Infinity });
 
-      let parsed;
-      try {
-        parsed = JSON.parse(line);
-      } catch {
-        continue;
-      }
+    try {
+      for await (const rawLine of rl) {
+        const line = rawLine.trim();
+        if (!line) {
+          continue;
+        }
 
-      if (parsed?.success !== false) {
-        continue;
-      }
+        let parsed;
+        try {
+          parsed = JSON.parse(line);
+        } catch {
+          continue;
+        }
 
-      const timestamp = parseTimestamp(parsed?.timestamp);
-      if (timestamp === null || timestamp < cutoff) {
-        continue;
-      }
+        if (parsed?.success !== false) {
+          continue;
+        }
 
-      failures.push({
-        tool: parsed?.tool ?? 'unknown',
-        error: parsed?.error ?? 'unknown error',
-        timestamp: parsed?.timestamp ?? 'unknown',
-      });
+        const timestamp = parseTimestamp(parsed?.timestamp);
+        if (timestamp === null || timestamp < cutoff) {
+          continue;
+        }
+
+        failures.push({
+          tool: parsed?.tool ?? 'unknown',
+          error: parsed?.error ?? 'unknown error',
+          timestamp: parsed?.timestamp ?? 'unknown',
+        });
+      }
+    } finally {
+      rl.close();
+      stream.destroy();
     }
   }
 
@@ -142,7 +164,7 @@ export async function sendFailureSummaryEmail(
 }
 
 async function run() {
-  const failures = collectFailures();
+  const failures = await collectFailures();
 
   if (failures.length === 0) {
     if (process.env.FAILURE_SUMMARY_ALL_CLEAR === 'true') {
@@ -200,9 +222,7 @@ async function run() {
   }
 }
 
-const entrypointPath = process.argv[1]
-  ? path.resolve(process.argv[1])
-  : null;
+const entrypointPath = process.argv[1] ? path.resolve(process.argv[1]) : null;
 if (entrypointPath && fileURLToPath(import.meta.url) === entrypointPath) {
   await run();
 }

@@ -1,4 +1,4 @@
-import { HTMLProps, useState } from 'react';
+import { Fragment, HTMLProps, useState } from 'react';
 
 declare const __SETUP_FILE__: string;
 const SETUP_URL = `https://mvla.ericgio.com/files/${__SETUP_FILE__}`;
@@ -71,176 +71,185 @@ export default function App() {
   };
 
   return (
-    <div className="container">
+    <Fragment>
       <header>
-        <img src="/mvla-claude.png" alt="MVLA Scheduling Assistant" />
-        <h1>MVLA Scheduling Assistant</h1>
-        <p>A Claude-powered scheduling tool for MVLA team managers.</p>
-        <a href="#get-started" className="cta-link">
-          Get Started
-        </a>
-      </header>
-      <section>
-        <h2>Why Use This Tool?</h2>
-        <p>
-          If you've ever had to schedule games for an MVLA team, you know it can
-          be a logistical nightmare: checking field availability on Byga,
-          messaging teams on GotSport, coordinating with your coach's other
-          teams, and avoiding conflicts with your personal calendar. And just
-          when the schedule is all set... you get a request to reschedule a
-          game.
-        </p>
-        <p>
-          This tool aims to simplify that process by giving you a conversational
-          assistant that can access all the data you need and help you find the
-          best options in seconds.
-        </p>
-      </section>
-      <section>
-        <h2>Before You Begin</h2>
-        <p>You'll need the following to use the MVLA Scheduling Assistant:</p>
-        <ul>
-          <li>
-            A <Link href="https://claude.com/pricing">paid Claude account</Link>{' '}
-            (free tier will not work)
-          </li>
-          <li>
-            <Link href="https://claude.com/download">Claude Desktop</Link>{' '}
-            (Claude.ai in a browser will not work)
-          </li>
-          <li>
-            <Link href="https://www.google.com/chrome/">
-              Google Chrome
-            </Link>{' '}
-          </li>
-        </ul>
-        <p className="note">
-          <strong>Note:</strong> Claude reads Byga through your own Chrome
-          browser, signed in as you — that's why Desktop and Chrome are both
-          required. More on how that works below.
-        </p>
-      </section>
-      <section id="get-started">
-        <h2>Get Started</h2>
-        <p>
-          Paste the following prompt into a new conversation in{' '}
-          <strong>Claude Desktop</strong> and Claude will walk you through the
-          process step by step:
-        </p>
-        <div className="setup-box">
-          <button
-            className={`copy-btn${copied ? ' copied' : ''}`}
-            onClick={copyPrompt}
-            aria-label="Copy to clipboard">
-            {copied ? <CheckIcon /> : <CopyIcon />}
-          </button>
-          <p>
-            I want to set up the MVLA Scheduling Assistant. Please use the setup
-            instructions from this URL and follow them to get started:
-          </p>
-          <p>{SETUP_URL}</p>
+        <div className="">
+          <img src="/mvla-claude.png" alt="MVLA Scheduling Assistant" />
+          <h1>MVLA Scheduling Assistant</h1>
+          <p>A Claude-powered scheduling tool for MVLA team managers.</p>
+          {/* <a href="#get-started" className="cta-link">
+            Get Started
+          </a> */}
         </div>
-      </section>
-      <section>
-        <h2>How does it work?</h2>
-        <p>
-          The tool is a Claude Project: a workspace where Claude keeps the
-          context — how MVLA scheduling works, who your team is, who your coach
-          is — so you never have to re-explain it.
-        </p>
-        <h3>Where It Gets Data</h3>
-        <p>
-          Everything is fetched live, at the moment you ask. There's no copy of
-          MVLA's data sitting on a server somewhere.
-        </p>
-        <ul>
-          <li>
-            <strong>Field availability</strong>: Claude reads the Byga field
-            usage page through your own Chrome browser, signed in as you. It
-            sees exactly what you'd see.
-          </li>
-          <li>
-            <strong>Team and league schedules</strong>: league fixtures come
-            from GotSport's public schedule export; coach and team schedules
-            come from the calendar feeds Byga already publishes.
-          </li>
-          <li>
-            <strong>Your own calendar</strong> (optional): Connect Google
-            Calendar or paste in a calendar link and Claude will check your
-            family's commitments too.
-          </li>
-        </ul>
-        <h3>Per-Season Setup</h3>
-        <p>
-          The first time you use it each season, Claude walks you through
-          tracking down a few things — your team's Byga and GotSport IDs, your
-          coach's calendar link — and saves them into a short "season context"
-          note in your project. That's what lets you say "schedule a home game"
-          without re-explaining who your team is every time. You'll redo it each
-          season, since teams get reshuffled and the IDs change.
-        </p>
-        <h3>Ask For Help</h3>
-        <p>
-          You tell it what you need — "I want to schedule a home game the
-          weekend of September 12. The other team requested a morning kickoff" —
-          and it does the legwork:
-        </p>
-        <ul>
-          <li>Checks which fields are open</li>
-          <li>
-            Looks at your team's schedule and your coach's schedule, including
-            their other teams
-          </li>
-          <li>
-            Checks your personal calendar so it doesn't pick the date your kid
-            has a recital
-          </li>
-          <li>Comes back with 2–3 good options and explains why</li>
-        </ul>
-        <p className="tagline">
-          No spreadsheets. No tab-juggling. Just a conversation.
-        </p>
-        <h3>What It Won’t Do</h3>
-        <ul>
-          <li>It doesn't book fields or send messages. It drafts; you send.</li>
-          <li>
-            It has no special access to club systems — it reads the same pages
-            you do, as you.
-          </li>
-          <li>
-            It can be wrong. It's parsing live web pages and calendar feeds, and
-            either can be stale or misread. Check anything before you act on it,
-            especially dates.
-          </li>
-        </ul>
-      </section>
-      <section>
-        <h2>Usage</h2>
-        <p>Once set up, start a chat inside your project and ask naturally:</p>
-        <p className="examples">
-          <div className="example">
-            "Can you check field availability for the weekend of June 14–15?"
+      </header>
+      <div className="container">
+        <section id="get-started">
+          <h2>Get Started</h2>
+          <p>
+            Paste the following prompt into a new conversation in{' '}
+            <strong>Claude Desktop</strong> and Claude will walk you through the
+            process step by step:
+          </p>
+          <div className="setup-box">
+            <button
+              className={`copy-btn${copied ? ' copied' : ''}`}
+              onClick={copyPrompt}
+              aria-label="Copy to clipboard">
+              {copied ? <CheckIcon /> : <CopyIcon />}
+            </button>
+            <p>
+              I want to set up the MVLA Scheduling Assistant. Please use the
+              setup instructions from this URL and follow them to get started:
+            </p>
+            <p>{SETUP_URL}</p>
           </div>
-          <div className="example">
-            "Schedule a home game against FC Ballistic — they can't do
-            Saturdays."
-          </div>
-          <div className="example">
-            "What does our schedule look like for the rest of the season?"
-          </div>
-        </p>
-        <p>
-          Claude will fetch live data, flag any conflicts, and walk you through
-          the options. On confirmation, it can draft a message to the away team
-          manager ready to paste into GotSport.
-        </p>
-      </section>
+        </section>
+        <section>
+          <h2>Why Use This Tool?</h2>
+          <p>
+            If you've ever had to schedule games for an MVLA team, you know it
+            can be a logistical nightmare: checking field availability on Byga,
+            messaging teams on GotSport, coordinating with your coach's other
+            teams, and avoiding conflicts with your personal calendar. And just
+            when the schedule is all set... you get a request to reschedule a
+            game.
+          </p>
+          <p>
+            This tool aims to simplify that process by giving you a
+            conversational assistant that can access all the data you need and
+            help you find the best options in seconds.
+          </p>
+        </section>
+        <section>
+          <h2>Requirements</h2>
+          <p>You'll need the following to use the MVLA Scheduling Assistant:</p>
+          <ul>
+            <li>
+              A{' '}
+              <Link href="https://claude.com/pricing">paid Claude account</Link>{' '}
+              (free tier will not work)
+            </li>
+            <li>
+              <Link href="https://claude.com/download">Claude Desktop</Link>{' '}
+              (Claude.ai in a browser will not work)
+            </li>
+            <li>
+              <Link href="https://www.google.com/chrome/">
+                Google Chrome
+              </Link>{' '}
+            </li>
+          </ul>
+          <p className="note">
+            <strong>Note:</strong> Claude reads Byga through your own Chrome
+            browser, signed in as you — that's why Desktop and Chrome are both
+            required. More on how that works below.
+          </p>
+        </section>
+        <section>
+          <h2>How does it work?</h2>
+          <p>
+            The tool is a Claude Project: a workspace where Claude keeps the
+            context — how MVLA scheduling works, who your team is, who your
+            coach is — so you never have to re-explain it.
+          </p>
+          <h3>Where It Gets Data</h3>
+          <p>
+            Everything is fetched live, at the moment you ask. There's no copy
+            of MVLA's data sitting on a server somewhere.
+          </p>
+          <ul>
+            <li>
+              <strong>Field availability</strong>: Claude reads the Byga field
+              usage page through your own Chrome browser, signed in as you. It
+              sees exactly what you'd see.
+            </li>
+            <li>
+              <strong>Team and league schedules</strong>: league fixtures come
+              from GotSport's public schedule export; coach and team schedules
+              come from the calendar feeds Byga already publishes.
+            </li>
+            <li>
+              <strong>Your own calendar</strong> (optional): Connect Google
+              Calendar or paste in a calendar link and Claude will check your
+              family's commitments too.
+            </li>
+          </ul>
+          <h3>Per-Season Setup</h3>
+          <p>
+            The first time you use it each season, Claude walks you through
+            tracking down a few things — your team's Byga and GotSport IDs, your
+            coach's calendar link — and saves them into a short "season context"
+            note in your project. That's what lets you say "schedule a home
+            game" without re-explaining who your team is every time. You'll redo
+            it each season, since teams get reshuffled and the IDs change.
+          </p>
+          <h3>Ask For Help</h3>
+          <p>
+            You tell it what you need — "I want to schedule a home game the
+            weekend of September 12. The other team requested a morning kickoff"
+            — and it does the legwork:
+          </p>
+          <ul>
+            <li>Checks which fields are open</li>
+            <li>
+              Looks at your team's schedule and your coach's schedule, including
+              their other teams
+            </li>
+            <li>
+              Checks your personal calendar so it doesn't pick the date your kid
+              has a recital
+            </li>
+            <li>Comes back with 2–3 good options and explains why</li>
+          </ul>
+          <p className="tagline">
+            No spreadsheets. No tab-juggling. Just a conversation.
+          </p>
+          <h3>What It Won’t Do</h3>
+          <ul>
+            <li>
+              It doesn't book fields or send messages. It drafts; you send.
+            </li>
+            <li>
+              It has no special access to club systems — it reads the same pages
+              you do, as you.
+            </li>
+            <li>
+              It can be wrong. It's parsing live web pages and calendar feeds,
+              and either can be stale or misread. Check anything before you act
+              on it, especially dates.
+            </li>
+          </ul>
+        </section>
+        <section>
+          <h2>Usage</h2>
+          <p>
+            Once set up, start a chat inside your project and ask naturally:
+          </p>
+          <p className="examples">
+            <div className="example">
+              "Can you check field availability for the weekend of June 14–15?"
+            </div>
+            <div className="example">
+              "Schedule a home game against FC Ballistic — they can't do
+              Saturdays."
+            </div>
+            <div className="example">
+              "What does our schedule look like for the rest of the season?"
+            </div>
+          </p>
+          <p>
+            Claude will fetch live data, flag any conflicts, and walk you
+            through the options. On confirmation, it can draft a message to the
+            away team manager ready to paste into GotSport.
+          </p>
+        </section>
+      </div>
 
       <footer>
         <Link href="https://github.com/ericgio/mvla-scheduling">
           <GitHubIcon />
         </Link>
       </footer>
-    </div>
+    </Fragment>
   );
 }

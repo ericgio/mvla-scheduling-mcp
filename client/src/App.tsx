@@ -76,6 +76,9 @@ export default function App() {
         <img src="/mvla-claude.png" alt="MVLA Scheduling Assistant" />
         <h1>MVLA Scheduling Assistant</h1>
         <p>A Claude-powered scheduling tool for MVLA team managers.</p>
+        <a href="#get-started" className="cta-link">
+          Get Started
+        </a>
       </header>
       <section>
         <h2>Why Use This Tool?</h2>
@@ -117,7 +120,7 @@ export default function App() {
           required. More on how that works below.
         </p>
       </section>
-      <section>
+      <section id="get-started">
         <h2>Get Started</h2>
         <p>
           Paste the following prompt into a new conversation in{' '}

@@ -22,7 +22,13 @@ h1 {
 }
 
 h2 {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+h3 {
+  font-size: 1rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
@@ -33,6 +39,13 @@ p {
 }
 p:last-child {
   margin-bottom: 0;
+}
+p.note {
+  border-left: 3px solid #e5e7eb;
+  color: #6b7280;
+  font-size: 0.85rem;
+  font-style: italic;
+  padding: 0rem 0.75rem;
 }
 
 a {
@@ -91,16 +104,16 @@ header p {
 }
 
 .setup-box {
-  position: relative;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
+  color: #10603a;
+  background: #d1e7dd;
+  border-left: 8px solid #a3cfbb;
   font-style: italic;
   padding: 1.25rem 1.5rem;
+  position: relative;
 }
 
 .setup-box p {
-  color: #848484;
+  color: inherit;
 }
 
 .setup-steps {
@@ -137,7 +150,7 @@ header p {
   background: none;
   border: none;
   border-radius: 0.25rem;
-  color: #9ca3af;
+  color: inherit;
   cursor: pointer;
   font-family: inherit;
   font-size: 0.85rem;
@@ -146,15 +159,11 @@ header p {
   gap: 0.125rem;
   transition: background 250ms ease;
 }
-
 .copy-btn:hover {
-  background: #f3f4f6;
-  color: #374151;
+  background: rgba(0, 0, 0, 0.05);
 }
-
 .copy-btn:active {
-  background: #e5e7eb;
-  color: #374151;
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .copy-btn.copied {

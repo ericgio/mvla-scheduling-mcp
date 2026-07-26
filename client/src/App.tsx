@@ -111,6 +111,11 @@ export default function App() {
             </Link>{' '}
           </li>
         </ul>
+        <p className="note">
+          <strong>Note:</strong> Claude reads Byga through your own Chrome
+          browser, signed in as you — that's why Desktop and Chrome are both
+          required. More on how that works below.
+        </p>
       </section>
       <section>
         <h2>Get Started</h2>
@@ -136,22 +141,75 @@ export default function App() {
       <section>
         <h2>How does it work?</h2>
         <p>
-          The tool is a smart assistant you chat with. You tell it what you need
-          — "I want to schedule a home game the weekend of September 12. The
-          other team requested a morning kickoff" — and it does the legwork:
+          The tool is a Claude Project: a workspace where Claude keeps the
+          context — how MVLA scheduling works, who your team is, who your coach
+          is — so you never have to re-explain it.
         </p>
-        <ol>
-          <li>Checks which fields are open</li>
-          <li>Looks at your team's schedule and your coach's schedule</li>
+        <h3>Where It Gets Data</h3>
+        <p>
+          Everything is fetched live, at the moment you ask. There's no copy of
+          MVLA's data sitting on a server somewhere.
+        </p>
+        <ul>
           <li>
-            Checks your personal calendar so it doesn't pick a date your kid has
-            a recital
+            <strong>Field availability</strong>: Claude reads the Byga field
+            usage page through your own Chrome browser, signed in as you. It
+            sees exactly what you'd see.
+          </li>
+          <li>
+            <strong>Team and league schedules</strong>: league fixtures come
+            from GotSport's public schedule export; coach and team schedules
+            come from the calendar feeds Byga already publishes.
+          </li>
+          <li>
+            <strong>Your own calendar</strong> (optional): Connect Google
+            Calendar or paste in a calendar link and Claude will check your
+            family's commitments too.
+          </li>
+        </ul>
+        <h3>Per-Season Setup</h3>
+        <p>
+          The first time you use it each season, Claude walks you through
+          tracking down a few things — your team's Byga and GotSport IDs, your
+          coach's calendar link — and saves them into a short "season context"
+          note in your project. That's what lets you say "schedule a home game"
+          without re-explaining who your team is every time. You'll redo it each
+          season, since teams get reshuffled and the IDs change.
+        </p>
+        <h3>Ask For Help</h3>
+        <p>
+          You tell it what you need — "I want to schedule a home game the
+          weekend of September 12. The other team requested a morning kickoff" —
+          and it does the legwork:
+        </p>
+        <ul>
+          <li>Checks which fields are open</li>
+          <li>
+            Looks at your team's schedule and your coach's schedule, including
+            their other teams
+          </li>
+          <li>
+            Checks your personal calendar so it doesn't pick the date your kid
+            has a recital
           </li>
           <li>Comes back with 2–3 good options and explains why</li>
-        </ol>
+        </ul>
         <p className="tagline">
           No spreadsheets. No tab-juggling. Just a conversation.
         </p>
+        <h3>What It Won’t Do</h3>
+        <ul>
+          <li>It doesn't book fields or send messages. It drafts; you send.</li>
+          <li>
+            It has no special access to club systems — it reads the same pages
+            you do, as you.
+          </li>
+          <li>
+            It can be wrong. It's parsing live web pages and calendar feeds, and
+            either can be stale or misread. Check anything before you act on it,
+            especially dates.
+          </li>
+        </ul>
       </section>
       <section>
         <h2>Usage</h2>

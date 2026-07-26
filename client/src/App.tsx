@@ -73,7 +73,7 @@ export default function App() {
   return (
     <Fragment>
       <header>
-        <div className="">
+        <div className="container">
           <img src="/mvla-claude.png" alt="MVLA Scheduling Assistant" />
           <h1>MVLA Scheduling Assistant</h1>
           <p>A Claude-powered scheduling tool for MVLA team managers.</p>

@@ -61,7 +61,7 @@ When asked to schedule a home game:
 3. Fetch your team's schedule via `get_gotsport_schedule`
 4. Fetch the coach's iCal via `get_calendar_schedule`
 5. Fetch the coach's other team(s) iCal(s) via `get_calendar_schedule`
-6. Fetch manager's personal calendars via `get_calendar_schedule` (URLs in this document)
+6. Fetch manager's personal calendars: use the Google Calendar connector if it's connected, otherwise fetch any iCal URLs listed in the Personal calendars section via `get_calendar_schedule`; if neither is available, skip silently
 7. Filter slots to the preferred game window (10am–2pm Saturday preferred)
 8. Cross-reference all conflicts and tournament blackouts from season context
 9. Present 2–3 ranked suggestions with brief reasoning

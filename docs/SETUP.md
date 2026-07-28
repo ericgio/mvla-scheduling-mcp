@@ -177,15 +177,11 @@ Offer two options:
   they connected the MCP server (Customize → Connectors → Google
   Calendar). One sign-in covers all their calendars.
 - **Other calendar services (Apple, Outlook, etc.)** — they can paste
-  iCal URLs into their project instructions under a new
-  `## Personal calendars` section. Provide this snippet for them to
-  customize and paste:
+  iCal URLs into the `## Personal calendars (optional)` section that's
+  already in their pasted project instructions, replacing the
+  placeholder rows there. For example:
 
   ```
-  ## Personal calendars
-
-  - **[e.g. Kids]:** [iCal URL]
-  - **[e.g. Family]:** [iCal URL]
   - **[e.g. Personal]:** [iCal URL]
   ```
 

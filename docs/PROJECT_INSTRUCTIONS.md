@@ -14,7 +14,7 @@ Always use find to locate elements rather than hardcoded coordinates — coordin
 **1. Claude in Chrome**
 Call `list_connected_browsers`. If no browser is found, tell the user to:
 
-1. Install the [Claude in Chrome](https://chromewebstore.google.com/detail/claude-in-chrome/) extension
+1. Install the [Claude in Chrome](https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn) extension
 2. Sign in with their Claude account
 3. Confirm when it's ready
 
@@ -85,7 +85,7 @@ Check the manager's personal calendars before suggesting any slot, if any are av
 
 **Claude can't find a connected browser**: Make sure the user is using Claude Desktop! Claude.ai in the browser cannot connect to Claude in Chrome. Make sure Chrome is open with the Claude in Chrome extension signed in. If it's installed but not connecting, try clicking the extension icon to open the side panel and verify you're signed in.
 
-**Permission prompt not appearing for Byga or GotSport**: Sometimes the prompt doesn't initially display. Have the user close the tab or window that Calude just opened and try again. Sometimes if the user is clicking around while Claude is opening the window, the prompt gets lost. Ask the user to wait while Claude does it's thing.
+**Permission prompt not appearing for Byga or GotSport**: Sometimes the prompt doesn't initially display. Have the user close the tab or window that Claude just opened and try again. Sometimes if the user is clicking around while Claude is opening the window, the prompt gets lost. Ask the user to wait while Claude does its thing.
 
 **Season context doc not being picked up**: Make sure it's in the Project Knowledge section (not just uploaded to a conversation). Go to **Project Settings → Files** to verify.
 

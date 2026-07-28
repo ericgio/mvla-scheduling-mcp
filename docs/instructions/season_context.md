@@ -14,11 +14,11 @@ Follow these steps to generate a season context doc for a team.
    - Team name, birth year, and format (7v7 / 9v9 / 11v11)
    - Byga team ID (from the URL)
    - League and division name
-   - Byga season name and season/schedule ID (from the active schedule). Confirm the ID by navigating to `https://mvlasc.byga.net/game_schedules/{id}?tab=field_usage` and verifying the season name in the top-right matches the expected season.
+   - Byga season name and season/schedule ID. See **Data readiness → Byga scheduling** below for how to locate and confirm this — never construct the URL from a guess.
    - Coach name and consolidated iCal URL: navigate to the coach's profile by reading the href on the coach's name link on the team page (pattern: `/users/{user_id}`) and navigating to `https://mvlasc.byga.net{href}`. Extract the iCal URL via JavaScript (`document.querySelectorAll('a[href*=".ics"]')`) rather than using the "Copy Subscription Link" button — clipboard content is not reliably readable. The consolidated iCal covers all their teams.
    - All other teams the coach coaches: for each competitive team, get name, Byga team ID, and league; note any in-house or development programs separately (Byga only, no GotSport). Identify in-house programs by checking whether the team appears in the coach's profile team list without a league name, or has no Competitions tab content.
 
-5. For each team (your team + each of the coach's competitive teams), look up GotSport IDs as follows:
+5. For each team (your team + each of the coach's competitive teams), check readiness first (see **Data readiness → GotSport competition data** below). If the Competitions tab is absent, record TBD and skip to the next team. Otherwise look up GotSport IDs as follows:
    a. Navigate to the team's Byga page (`https://mvlasc.byga.net/teams/{team_id}`)
    b. Use find to locate the Competitions dropdown in the tab bar and click it
    c. In the dropdown, click the competition that corresponds to the current season's league (e.g. "2025-26 NorCal Premier Spring League U8-U19"). This takes you to the team calendar page for that competition.
@@ -38,6 +38,32 @@ Follow these steps to generate a season context doc for a team.
 
 After completing the GotSport lookup, close any GotSport tabs that were opened during extraction to avoid tab confusion in subsequent steps. Always confirm the correct tab is active before reading data by checking `window.location.href`.
 
+## Data readiness
+
+Byga scheduling and GotSport competition data are published by different organizations on independent timelines. Any combination of ready/not-ready can occur — check each source separately, every time. Never infer one source's readiness from the other, or from the calendar date. Neither absence is an error condition: do not retry, do not probe alternate URLs, and do not fall back to a previous season's IDs.
+
+**Byga scheduling.** Never construct a `/game_schedules/{id}` URL from a guess or from a prior season's ID — season IDs are not derivable. Navigate as a manager would: from the team page or dashboard, use `find` to locate the scheduling link.
+
+- No scheduling link → not open. Byga season ID and field availability URL stay TBD.
+- Link exists → open it and read the season name (top right). If it doesn't match the target season, the page belongs to a prior season. Leave both rows TBD.
+- Season name matches but status is CLOSED → the season exists but isn't schedulable yet. Record the season ID and field availability URL; mark field availability itself as pending. The ID will be correct when it opens.
+- Season name matches and status is open → record both rows, proceed.
+
+**GotSport competition data.** The team page shows a Competitions tab once league data is published.
+
+- No Competitions tab → not published. GotSport event ID and team ID stay TBD.
+- Tab present → open it. The page shows fixtures, a competition table, and a link to the GotSport standings. Take the event ID and team ID from that link.
+
+Sanity check before recording: call `get_gotsport_schedule` with those IDs and inspect the returned game dates. If every game falls before the target season's start, the IDs point at a prior season — discard them and leave the rows TBD. A stale event ID returns valid-looking data with no error, so this check is the only thing that catches it.
+
+## Partial completion
+
+A doc missing rows is expected and still useful. Always save what's known.
+
+- Write the literal string `TBD` in any unfillable row, with a short parenthetical reason.
+- After generating, state plainly: which rows are pending, what the manager will see in the UI when each becomes fillable, and that they should return then to finish.
+- Claude cannot edit Project Knowledge. When rows are later filled, output the replacement rows and tell the manager to update the file under Project Settings → Files. Never imply the doc has been updated automatically.
+
 ## Output rules
 
 - Do not include game schedules, field format rules, manager info, personal calendar URLs, or scheduling notes — those are fetched live or live in Project Instructions
@@ -45,10 +71,10 @@ After completing the GotSport lookup, close any GotSport tabs that were opened d
 - The coach's consolidated iCal covers all their teams — do not add individual team iCals
 - The Tournament Blackouts section always appears with the prompt comment, even if empty
 - GotSport team IDs must be looked up from the GotSport schedule page — never guessed
-- A doc with TBD placeholders and inline revisit notes is a successful partial outcome. Do not block the whole generation on one missing field.
+- A doc with TBD placeholders and inline revisit notes is a successful partial outcome. Do not block the whole generation on one missing field — see Partial completion above.
 - For any single data point, allow at most two distinct approaches: the documented path and one alternative. If both fail, stop and ask the user rather than trying more variants or brute-forcing IDs.
 - If a season context doc already exists for the target season, read its TBD/blocked notes before starting extraction. Do not re-attempt something a previous run already documented as unavailable unless the blocking condition has clearly changed.
-- Treat pre-season absence as a normal state, not an error: field usage tab not yet open, no game_schedule ID issued yet, Competitions tab absent, league/division fields unset. In each case, record TBD and move on.
+- Treat pre-season absence as a normal state, not an error — see Data readiness above for the per-source checks.
 - Retry transient HTTP errors (for example 502s) up to 3 times with a short backoff. If a request returns 200 but the content is structurally absent, do not retry; record TBD and continue.
 
 ## Template

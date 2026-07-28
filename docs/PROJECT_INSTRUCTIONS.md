@@ -54,7 +54,8 @@ Before starting, read the season context doc. If any row reads `TBD`, don't star
 - **Field availability TBD** — re-check Byga now (call `get_instructions(topic: "season_context")` for the current heuristic). If it has opened, produce the updated rows, ask the manager to update the doc, then continue. If not, say so and offer to run everything except field availability — coach and personal conflicts still yield a useful shortlist of candidate dates.
 - **GotSport TBD** — re-check the Competitions tab. If still absent, note that league fixtures can't be cross-referenced and proceed with the remaining sources.
 
-When asked to schedule a home game:
+When asked to schedule a home game (if any fetch in steps 2–6 fails, see
+**Incomplete data** below before presenting suggestions):
 
 1. Confirm the date range being considered
 2. Fetch field availability for that range (see above)
@@ -67,6 +68,15 @@ When asked to schedule a home game:
 9. Present 2–3 ranked suggestions with brief reasoning
 10. Note any soft conflicts or tradeoffs
 11. On confirmation, draft a GotSport message to the away team manager
+
+### Incomplete data
+
+Steps 2, 3, and 4–6 each fetch from an external source, and any of them can fail — expired feed URL, regenerated calendar, server temporarily down. A source failing is not the same as a source finding no conflicts, and the manager can't tell the difference unless you say so.
+
+- **Disclose it.** If a source fails, say so in your response — name the source and what it means for the suggestions (e.g. "couldn't reach the coach's calendar, so coach conflicts are unverified for these slots").
+- **Never present a slot as conflict-free when a check against it didn't complete.** Rank it below fully-checked slots, or exclude it — either way, label it as unverified rather than clean.
+- **Offer to retry** the failed source before the manager commits to a slot.
+- **Don't abort the whole workflow over one failed source.** The remaining, successfully-checked suggestions are still useful as long as the gap is disclosed.
 
 ## Recurring constraints
 
